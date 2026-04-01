@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>TRF_01_ENTETE</name>
+    
+    <description>Segment H → LCN_ENTETE</description>
+    <extended_description/>
+    <trans_version>1.0</trans_version>
+    <trans_type>Normal</trans_type>
+    <parameters>
+      <parameter>
+        <name>FICHIER_ENTREE</name>
+        <default_value>C:/Users/hp/PycharmProjects/plateforme-lcn-etl-cfgv1/data/CIL_DFF_001_050_20260305_001</default_value>
+        <description>Chemin complet du fichier DFF BAM</description>
+      </parameter>
+      <parameter>
+        <name>NOM_FICHIER</name>
+        <default_value>CIL_DFF_001_050_20260305_001</default_value>
+        <description>Nom du fichier sans chemin</description>
+      </parameter>
+    </parameters>
+  </info>
+  <connection>
+    <name>ORACLE_LCN</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>-1</port>
+    <username>lcn_user</username>
+    <password>lcn_pass_2026</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute>
+        <code>CUSTOM_DRIVER_CLASS</code>
+        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
+      </attribute>
+      <attribute>
+        <code>CUSTOM_URL</code>
+        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
+      </attribute>
+    </attributes>
+  </connection>
+<order>
+    <hop><from>LIRE_FICHIER_BRUT</from><to>FILTRER_SEGMENT_H</to><enabled>Y</enabled></hop>
+    <hop><from>FILTRER_SEGMENT_H</from><to>EXTRAIRE_CHAMPS_H</to><enabled>Y</enabled></hop>
+    <hop><from>EXTRAIRE_CHAMPS_H</from><to>CONVERTIR_DATES_H</to><enabled>Y</enabled></hop>
+    <hop><from>CONVERTIR_DATES_H</from><to>AJOUTER_METADATA</to><enabled>Y</enabled></hop>
+    <hop><from>AJOUTER_METADATA</from><to>CHARGER_LCN_ENTETE</to><enabled>Y</enabled></hop>
+  </order>
+
+  <!-- STEP 1 : Lecture ligne à ligne -->
+  <step>
+    <name>LIRE_FICHIER_BRUT</name>
+    <type>TextFileInput</type>
+    <description>Lecture du fichier DFF BAM complet ligne par ligne</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <accept_filenames>N</accept_filenames>
+    <passing_through_fields>N</passing_through_fields>
+    <accept_field/>
+    <accept_stepname/>
+    <separator/>
+    <enclosure/>
+    <enclosure_breaks>N</enclosure_breaks>
+    <header>N</header>
+    <nr_headerlines>0</nr_headerlines>
+    <footer>N</footer>
+    <nr_footerlines>0</nr_footerlines>
+    <noempty>N</noempty>
+    <format>DOS</format>
+    <encoding>ISO-8859-1</encoding>
+    <length>Characters</length>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <file>
+      <name>${FICHIER_ENTREE}</name>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>LIGNE_RAW</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <ifnull/>
+        <position>1</position>
+        <length>500</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!-- STEP 2 : Filtre segment H -->
+  <step>
+    <name>FILTRER_SEGMENT_H</name>
+    <type>FilterRows</type>
+    <description>Garder uniquement les lignes commençant par H</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <send_true_to>EXTRAIRE_CHAMPS_H</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>LIGNE_RAW</leftvalue>
+        <function>LIKE</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name><type>String</type><text>H%</text>
+          <length>-1</length><precision>-1</precision><isnull>N</isnull><mask/>
+        </value>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <GUI><xloc>240</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!-- STEP 3 : Extraction positionnelle segment H
+       H : pos 1=H, 2-4=H02(LOT 3), 5-12=H03(DATE_DEBUT 8), 13-20=H04(DATE_FIN 8), 21-23=H05(3), 24-27=H06(4) -->
+  <step>
+    <name>EXTRAIRE_CHAMPS_H</name>
+    <type>StringCut</type>
+    <description>Extraction des 5 champs positionnels du segment H</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H02</out_stream_name><cut_from>2</cut_from><cut_to>4</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H03_STR</out_stream_name><cut_from>5</cut_from><cut_to>12</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H04_STR</out_stream_name><cut_from>13</cut_from><cut_to>20</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H05</out_stream_name><cut_from>21</cut_from><cut_to>23</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H06</out_stream_name><cut_from>24</cut_from><cut_to>27</cut_to></field>
+    </fields>
+    <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!-- STEP 4 : Conversion dates AAAAMMJJ → Date Oracle -->
+  <step>
+    <name>CONVERTIR_DATES_H</name>
+    <type>SelectValues</type>
+    <description>Conversion H03 et H04 en type Date yyyyMMdd</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>H02</name><length>3</length><precision>-1</precision></field>
+      <field><name>H03_STR</name><rename>H03</rename></field>
+      <field><name>H04_STR</name><rename>H04</rename></field>
+      <field><name>H05</name><length>3</length></field>
+      <field><name>H06</name><length>4</length></field>
+    </fields>
+    <select_unspecified>N</select_unspecified>
+    <meta>
+      <field><name>H03</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
+      <field><name>H04</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
+    </meta>
+    <GUI><xloc>560</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!-- STEP 5 : Ajout NOM_FICHIER et DATE_CHARGE -->
+  <step>
+    <name>AJOUTER_METADATA</name>
+    <type>AddConstants</type>
+    <description>Ajout NOM_FICHIER et DATE_CHARGE=NOW</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field>
+        <name>NOM_FICHIER</name>
+        <type>String</type>
+        <value>${NOM_FICHIER}</value>
+      </field>
+      <field>
+        <name>DATE_CHARGE</name>
+        <type>Date</type>
+        <format>yyyy-MM-dd HH:mm:ss</format>
+        <value/>
+      </field>
+    </fields>
+    <GUI><xloc>720</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!-- STEP 6 : Insert/Update → LCN_ENTETE (clé = NOM_FICHIER) -->
+  <step>
+    <name>CHARGER_LCN_ENTETE</name>
+    <type>InsertUpdate</type>
+    <description>Insert/Update vers LCN_ENTETE, clé = NOM_FICHIER</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <connection>ORACLE_LCN</connection>
+<commit>100</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema>LCN_USER</schema>
+      <table>LCN_ENTETE</table>
+      <key><name>NOM_FICHIER</name><field>NOM_FICHIER</field><condition>=</condition><name2/></key>
+      <value><name>H02</name><rename>H02</rename><update>Y</update></value>
+      <value><name>H03</name><rename>H03</rename><update>Y</update></value>
+      <value><name>H04</name><rename>H04</rename><update>Y</update></value>
+      <value><name>H05</name><rename>H05</rename><update>Y</update></value>
+      <value><name>H06</name><rename>H06</rename><update>Y</update></value>
+      <value><name>NOM_FICHIER</name><rename>NOM_FICHIER</rename><update>N</update></value>
+      <value><name>DATE_CHARGE</name><rename>DATE_CHARGE</rename><update>Y</update></value>
+    </lookup>
+    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step_error_handling/>
+</transformation>

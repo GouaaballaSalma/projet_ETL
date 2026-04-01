@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>TRF_00_CHECK_DOUBLON</name>
+    
+    <description>Vérifie si NOM_FICHIER est déjà dans LCN_ENTETE. Positionne DOUBLON_COUNT.</description>
+    <extended_description/>
+    <trans_version>1.0</trans_version>
+    <trans_type>Normal</trans_type>
+    <parameters>
+      <parameter>
+        <name>NOM_FICHIER</name>
+        <default_value>CIL_DFF_001_050_20260305_001</default_value>
+        <description>Nom du fichier à vérifier dans LCN_ENTETE</description>
+      </parameter>
+    </parameters>
+  </info>
+  <connection>
+    <name>ORACLE_LCN</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>-1</port>
+    <username>lcn_user</username>
+    <password>lcn_pass_2026</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute>
+        <code>CUSTOM_DRIVER_CLASS</code>
+        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
+      </attribute>
+      <attribute>
+        <code>CUSTOM_URL</code>
+        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
+      </attribute>
+    </attributes>
+  </connection>
+<order>
+    <hop><from>COMPTER_FICHIER_EXISTANT</from><to>POSITIONNER_VARIABLE</to><enabled>Y</enabled></hop>
+    <hop><from>POSITIONNER_VARIABLE</from><to>FILTRE_DOUBLON</to><enabled>Y</enabled></hop>
+    <hop><from>FILTRE_DOUBLON</from><to>LOG_DOUBLON_DETECTE</to><enabled>Y</enabled></hop>
+  </order>
+
+  <step>
+    <name>COMPTER_FICHIER_EXISTANT</name>
+    <type>TableInput</type>
+    <description>COUNT du NOM_FICHIER dans LCN_ENTETE</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <connection>ORACLE_LCN</connection>
+<sql><![CDATA[
+SELECT COUNT(*) AS DOUBLON_COUNT
+FROM LCN_USER.LCN_ENTETE
+WHERE NOM_FICHIER = '${NOM_FICHIER}'
+    ]]></sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>POSITIONNER_VARIABLE</name>
+    <type>SetVariable</type>
+    <description>Exporte DOUBLON_COUNT comme variable du job parent</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field>
+        <field_name>DOUBLON_COUNT</field_name>
+        <variable_name>DOUBLON_COUNT</variable_name>
+        <variable_type>PARENT_JOB</variable_type>
+        <default_value>0</default_value>
+      </field>
+    </fields>
+    <use_formatting>N</use_formatting>
+    <GUI><xloc>280</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>FILTRE_DOUBLON</name>
+    <type>FilterRows</type>
+    <description>Si DOUBLON_COUNT > 0 → doublon détecté</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <send_true_to>LOG_DOUBLON_DETECTE</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>DOUBLON_COUNT</leftvalue>
+        <function>&gt;</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>0</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <GUI><xloc>480</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>LOG_DOUBLON_DETECTE</name>
+    <type>WriteToLog</type>
+    <description>Log si doublon détecté</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <loglevel>minimal</loglevel>
+    <displayHeader>Y</displayHeader>
+    <logmessage>DOUBLON : Le fichier ${NOM_FICHIER} est déjà dans LCN_ENTETE. Chargement ignoré.</logmessage>
+    <fields>
+      <field><fieldname>DOUBLON_COUNT</fieldname></field>
+    </fields>
+    <GUI><xloc>680</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step_error_handling/>
+</transformation>

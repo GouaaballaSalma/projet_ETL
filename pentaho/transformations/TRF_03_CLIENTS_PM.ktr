@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>TRF_03_CLIENTS_PM</name>
+    
+    <description>Segment T → LCN_CLIENTS_PM (T07 filler ignoré, T11 date convertie)</description>
+    <extended_description/>
+    <trans_version>1.0</trans_version>
+    <trans_type>Normal</trans_type>
+    <parameters>
+      <parameter><name>FICHIER_ENTREE</name><default_value>C:/Users/hp/PycharmProjects/plateforme-lcn-etl-cfgv1/data/CIL_DFF_001_050_20260305_001</default_value></parameter>
+      <parameter><name>LOT_VAL</name><default_value>001</default_value></parameter>
+      <parameter><name>DATE_ARRETE_VAL</name><default_value>20260305</default_value></parameter>
+    </parameters>
+  </info>
+  <connection>
+    <name>ORACLE_LCN</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>-1</port>
+    <username>lcn_user</username>
+    <password>lcn_pass_2026</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute>
+        <code>CUSTOM_DRIVER_CLASS</code>
+        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
+      </attribute>
+      <attribute>
+        <code>CUSTOM_URL</code>
+        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
+      </attribute>
+    </attributes>
+  </connection>
+<order>
+    <hop><from>LIRE_FICHIER_BRUT</from><to>FILTRER_SEGMENT_T</to><enabled>Y</enabled></hop>
+    <hop><from>FILTRER_SEGMENT_T</from><to>EXTRAIRE_CHAMPS_T</to><enabled>Y</enabled></hop>
+    <hop><from>EXTRAIRE_CHAMPS_T</from><to>CONVERTIR_TYPES_T</to><enabled>Y</enabled></hop>
+    <hop><from>CONVERTIR_TYPES_T</from><to>AJOUTER_LOT_DATE</to><enabled>Y</enabled></hop>
+    <hop><from>AJOUTER_LOT_DATE</from><to>CHARGER_LCN_CLIENTS_PM</to><enabled>Y</enabled></hop>
+  </order>
+
+  <step>
+    <name>LIRE_FICHIER_BRUT</name>
+    <type>TextFileInput</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <accept_filenames>N</accept_filenames>
+    <header>N</header>
+    <nr_headerlines>0</nr_headerlines>
+    <footer>N</footer>
+    <format>DOS</format>
+    <encoding>ISO-8859-1</encoding>
+    <length>Characters</length>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <file>
+      <name>${FICHIER_ENTREE}</name>
+      <filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>LIGNE_RAW</name><type>String</type>
+        <position>1</position><length>700</length>
+        <precision>-1</precision><trim_type>none</trim_type><repeat>N</repeat>
+      </field>
+    </fields>
+    <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>FILTRER_SEGMENT_T</name>
+    <type>FilterRows</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <send_true_to>EXTRAIRE_CHAMPS_T</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>LIGNE_RAW</leftvalue>
+        <function>LIKE</function>
+        <rightvalue/>
+        <value><name>constant</name><type>String</type><text>T%</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <GUI><xloc>240</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!--
+    STRUCTURE SEGMENT T (positionnel) :
+    Pos 1      : 'T'
+    Pos 2-13   : T02  REF_CLIENT PM (12)
+    Pos 14-14  : T03  TYPE (1)
+    Pos 15-17  : T04  CODE_PAYS (3)
+    Pos 18-37  : T05  RC (20)
+    Pos 38-57  : T06  ICE (20)
+    Pos 58-77  : T07  FILLER → IGNORÉ (20)
+    Pos 78-97  : T08  PATENTE (20)
+    Pos 98-117 : T09  IDENTIF (20)
+    Pos 118-237: T10  RAISON_SOCIALE (120)
+    Pos 238-245: T11  DATE_CREATION (8) → Date
+    Pos 246-247: T12  CODE_FORME_JUR (2)
+    Pos 248-297: T13  ADRESSE1 (50)
+    Pos 298-347: T14  ADRESSE2 (50)
+    Pos 348-397: T15  ADRESSE3 (50)
+    Pos 398-447: T16  ADRESSE4 (50)
+    Pos 448-497: T17  COMMUNE (50)
+    Pos 498-541: T18  VILLE (44)
+    Pos 542-544: T19  CODE_PAYS_ADR (3)
+    Pos 545-549: T20  CODE_ISO (5)
+    Pos 550-551: T21  CODE_RESIDENC (2)
+    Pos 552-552: T22  INDICATEUR (1)
+    Pos 553-672: T23  OBJ_SOCIAL (120)
+    Pos 673-673: T24  CATEGORIE (1)
+    Pos 674-696: T25  NUM_AFFILIAT (23)
+  -->
+  <step>
+    <name>EXTRAIRE_CHAMPS_T</name>
+    <type>StringCut</type>
+    <description>Extraction positionnelle segment T — T07 filler ignoré</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T02</out_stream_name><cut_from>2</cut_from><cut_to>13</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T03</out_stream_name><cut_from>14</cut_from><cut_to>14</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T04</out_stream_name><cut_from>15</cut_from><cut_to>17</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T05</out_stream_name><cut_from>18</cut_from><cut_to>37</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T06</out_stream_name><cut_from>38</cut_from><cut_to>57</cut_to></field>
+      <!-- T07 FILLER pos 58-77 : IGNORÉ -->
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T08</out_stream_name><cut_from>78</cut_from><cut_to>97</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T09</out_stream_name><cut_from>98</cut_from><cut_to>117</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T10</out_stream_name><cut_from>118</cut_from><cut_to>237</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T11_STR</out_stream_name><cut_from>238</cut_from><cut_to>245</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T12</out_stream_name><cut_from>246</cut_from><cut_to>247</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T13</out_stream_name><cut_from>248</cut_from><cut_to>297</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T14</out_stream_name><cut_from>298</cut_from><cut_to>347</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T15</out_stream_name><cut_from>348</cut_from><cut_to>397</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T16</out_stream_name><cut_from>398</cut_from><cut_to>447</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T17</out_stream_name><cut_from>448</cut_from><cut_to>497</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T18</out_stream_name><cut_from>498</cut_from><cut_to>541</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T19</out_stream_name><cut_from>542</cut_from><cut_to>544</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T20</out_stream_name><cut_from>545</cut_from><cut_to>549</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T21</out_stream_name><cut_from>550</cut_from><cut_to>551</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T22</out_stream_name><cut_from>552</cut_from><cut_to>552</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T23</out_stream_name><cut_from>553</cut_from><cut_to>672</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T24</out_stream_name><cut_from>673</cut_from><cut_to>673</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T25</out_stream_name><cut_from>674</cut_from><cut_to>696</cut_to></field>
+    </fields>
+    <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>CONVERTIR_TYPES_T</name>
+    <type>SelectValues</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>T02</name></field><field><name>T03</name></field><field><name>T04</name></field>
+      <field><name>T05</name></field><field><name>T06</name></field><field><name>T08</name></field>
+      <field><name>T09</name></field><field><name>T10</name></field>
+      <field><name>T11_STR</name><rename>T11</rename></field>
+      <field><name>T12</name></field><field><name>T13</name></field><field><name>T14</name></field>
+      <field><name>T15</name></field><field><name>T16</name></field><field><name>T17</name></field>
+      <field><name>T18</name></field><field><name>T19</name></field><field><name>T20</name></field>
+      <field><name>T21</name></field><field><name>T22</name></field><field><name>T23</name></field>
+      <field><name>T24</name></field><field><name>T25</name></field>
+    </fields>
+    <select_unspecified>N</select_unspecified>
+    <meta>
+      <field><name>T11</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
+    </meta>
+    <GUI><xloc>560</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>AJOUTER_LOT_DATE</name>
+    <type>AddConstants</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>LOT</name><type>String</type><value>${LOT_VAL}</value></field>
+      <field><name>DATE_ARRETE_STR</name><type>String</type><value>${DATE_ARRETE_VAL}</value></field>
+    </fields>
+    <GUI><xloc>720</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>CHARGER_LCN_CLIENTS_PM</name>
+    <type>InsertUpdate</type>
+    <description>Insert/Update vers LCN_CLIENTS_PM, clé = T02</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <connection>ORACLE_LCN</connection>
+<commit>500</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema>LCN_USER</schema>
+      <table>LCN_CLIENTS_PM</table>
+      <key><name>T02</name><field>T02</field><condition>=</condition><name2/></key>
+      <value><name>T02</name><rename>T02</rename><update>N</update></value>
+      <value><name>T03</name><rename>T03</rename><update>Y</update></value>
+      <value><name>T04</name><rename>T04</rename><update>Y</update></value>
+      <value><name>T05</name><rename>T05</rename><update>Y</update></value>
+      <value><name>T06</name><rename>T06</rename><update>Y</update></value>
+      <value><name>T08</name><rename>T08</rename><update>Y</update></value>
+      <value><name>T09</name><rename>T09</rename><update>Y</update></value>
+      <value><name>T10</name><rename>T10</rename><update>Y</update></value>
+      <value><name>T11</name><rename>T11</rename><update>Y</update></value>
+      <value><name>T12</name><rename>T12</rename><update>Y</update></value>
+      <value><name>T13</name><rename>T13</rename><update>Y</update></value>
+      <value><name>T14</name><rename>T14</rename><update>Y</update></value>
+      <value><name>T15</name><rename>T15</rename><update>Y</update></value>
+      <value><name>T16</name><rename>T16</rename><update>Y</update></value>
+      <value><name>T17</name><rename>T17</rename><update>Y</update></value>
+      <value><name>T18</name><rename>T18</rename><update>Y</update></value>
+      <value><name>T19</name><rename>T19</rename><update>Y</update></value>
+      <value><name>T20</name><rename>T20</rename><update>Y</update></value>
+      <value><name>T21</name><rename>T21</rename><update>Y</update></value>
+      <value><name>T22</name><rename>T22</rename><update>Y</update></value>
+      <value><name>T23</name><rename>T23</rename><update>Y</update></value>
+      <value><name>T24</name><rename>T24</rename><update>Y</update></value>
+      <value><name>T25</name><rename>T25</rename><update>Y</update></value>
+      <value><name>LOT</name><rename>LOT</rename><update>Y</update></value>
+    </lookup>
+    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step_error_handling/>
+</transformation>

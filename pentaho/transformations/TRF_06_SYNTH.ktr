@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>TRF_06_SYNTH</name>
+    
+    <description>Construction LCN_SYNTH via SQL JOIN : INCIDENTS + LIENS + PP + PM + REF_STATUT</description>
+    <extended_description/>
+    <trans_version>1.0</trans_version>
+    <trans_type>Normal</trans_type>
+    <parameters>
+      <parameter><name>LOT_VAL</name><default_value>001</default_value><description>Numéro de lot à traiter</description></parameter>
+      <parameter><name>DATE_ARRETE_VAL</name><default_value>20260305</default_value><description>Date arrêtée format AAAAMMJJ</description></parameter>
+    </parameters>
+  </info>
+  <connection>
+    <name>ORACLE_LCN</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>-1</port>
+    <username>lcn_user</username>
+    <password>lcn_pass_2026</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute>
+        <code>CUSTOM_DRIVER_CLASS</code>
+        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
+      </attribute>
+      <attribute>
+        <code>CUSTOM_URL</code>
+        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
+      </attribute>
+    </attributes>
+  </connection>
+<order>
+    <hop><from>LIRE_SYNTH_SQL</from><to>CHARGER_LCN_SYNTH</to><enabled>Y</enabled></hop>
+  </order>
+
+  <!--
+    Stratégie : TableInput avec le JOIN SQL complet, puis InsertUpdate vers LCN_SYNTH.
+    La jointure combine :
+      - LCN_INCIDENTS (source principale)
+      - LCN_LIENS (U03 = X03)
+      - LCN_CLIENTS_PP (B02 = U02)
+      - LCN_CLIENTS_PM (T02 = U02)
+      - LCN_REF_STATUT (CODE = X13)
+    Filtré par LOT = ${LOT_VAL}
+  -->
+  <step>
+    <name>LIRE_SYNTH_SQL</name>
+    <type>TableInput</type>
+    <description>Requête JOIN complète pour construire LCN_SYNTH</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <connection>ORACLE_LCN</connection>
+<sql><![CDATA[
+SELECT
+    NVL(TRIM(u.U02), TRIM(x.X03))   AS REF_CLIENT,
+    TRIM(x.X03)                     AS REF_IMPAYE,
+    CASE
+        WHEN pp.B02 IS NOT NULL THEN 'PP'
+        WHEN pm.T02 IS NOT NULL THEN 'PM'
+        ELSE NULL
+    END                             AS TYPE_CLIENT,
+    TRIM(pp.B08)                    AS NOM,
+    TRIM(pp.B09)                    AS PRENOM,
+    TRIM(pp.B15)                    AS CIN,
+    pp.B11                          AS DATE_NAISSANCE,
+    TRIM(pm.T10)                    AS RAISON_SOCIALE,
+    TRIM(pm.T05)                    AS RC,
+    TRIM(x.X02)                     AS CODE_BANQUE,
+    TRIM(x.X05)                     AS NUM_LCN,
+    x.X06                           AS MONTANT,
+    TRIM(x.X07)                     AS DEVISE,
+    x.X09                           AS DATE_EMISSION,
+    x.X10                           AS DATE_ECHEANCE,
+    x.X11                           AS DATE_CONSTAT,
+    x.X12                           AS INSUFFISANCE,
+    TRIM(x.X13)                     AS CODE_STATUT,
+    rs.LIBELLE                      AS STATUT,
+    x.X14                           AS DATE_STATUT,
+    TRIM(x.X16)                     AS RIB,
+    x.LOT                           AS LOT,
+    x.DATE_ARRETE                   AS DATE_ARRETE,
+    SYSDATE                         AS DATE_CHARGE
+FROM LCN_USER.LCN_INCIDENTS x
+LEFT JOIN LCN_USER.LCN_LIENS u
+    ON (TRIM(u.U03) = TRIM(x.X03) AND u.LOT = x.LOT)
+LEFT JOIN LCN_USER.LCN_CLIENTS_PP pp
+    ON (TRIM(pp.B02) = TRIM(u.U02) AND pp.LOT = x.LOT)
+LEFT JOIN LCN_USER.LCN_CLIENTS_PM pm
+    ON (TRIM(pm.T02) = TRIM(u.U02) AND pm.LOT = x.LOT)
+LEFT JOIN LCN_USER.LCN_REF_STATUT rs
+    ON (rs.CODE = TRIM(x.X13))
+WHERE x.LOT = '${LOT_VAL}'
+    ]]></sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>Y</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>CHARGER_LCN_SYNTH</name>
+    <type>InsertUpdate</type>
+    <description>Insert/Update vers LCN_SYNTH, clé = REF_IMPAYE + LOT</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <connection>ORACLE_LCN</connection>
+<commit>500</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema>LCN_USER</schema>
+      <table>LCN_SYNTH</table>
+      <key><name>REF_IMPAYE</name><field>REF_IMPAYE</field><condition>=</condition><name2/></key>
+      <key><name>LOT</name><field>LOT</field><condition>=</condition><name2/></key>
+      <value><name>REF_CLIENT</name><rename>REF_CLIENT</rename><update>Y</update></value>
+      <value><name>REF_IMPAYE</name><rename>REF_IMPAYE</rename><update>N</update></value>
+      <value><name>TYPE_CLIENT</name><rename>TYPE_CLIENT</rename><update>Y</update></value>
+      <value><name>NOM</name><rename>NOM</rename><update>Y</update></value>
+      <value><name>PRENOM</name><rename>PRENOM</rename><update>Y</update></value>
+      <value><name>CIN</name><rename>CIN</rename><update>Y</update></value>
+      <value><name>DATE_NAISSANCE</name><rename>DATE_NAISSANCE</rename><update>Y</update></value>
+      <value><name>RAISON_SOCIALE</name><rename>RAISON_SOCIALE</rename><update>Y</update></value>
+      <value><name>RC</name><rename>RC</rename><update>Y</update></value>
+      <value><name>CODE_BANQUE</name><rename>CODE_BANQUE</rename><update>Y</update></value>
+      <value><name>NUM_LCN</name><rename>NUM_LCN</rename><update>Y</update></value>
+      <value><name>MONTANT</name><rename>MONTANT</rename><update>Y</update></value>
+      <value><name>DEVISE</name><rename>DEVISE</rename><update>Y</update></value>
+      <value><name>DATE_EMISSION</name><rename>DATE_EMISSION</rename><update>Y</update></value>
+      <value><name>DATE_ECHEANCE</name><rename>DATE_ECHEANCE</rename><update>Y</update></value>
+      <value><name>DATE_CONSTAT</name><rename>DATE_CONSTAT</rename><update>Y</update></value>
+      <value><name>INSUFFISANCE</name><rename>INSUFFISANCE</rename><update>Y</update></value>
+      <value><name>CODE_STATUT</name><rename>CODE_STATUT</rename><update>Y</update></value>
+      <value><name>STATUT</name><rename>STATUT</rename><update>Y</update></value>
+      <value><name>DATE_STATUT</name><rename>DATE_STATUT</rename><update>Y</update></value>
+      <value><name>RIB</name><rename>RIB</rename><update>Y</update></value>
+      <value><name>LOT</name><rename>LOT</rename><update>N</update></value>
+      <value><name>DATE_ARRETE</name><rename>DATE_ARRETE</rename><update>Y</update></value>
+      <value><name>DATE_CHARGE</name><rename>DATE_CHARGE</rename><update>Y</update></value>
+    </lookup>
+    <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step_error_handling/>
+</transformation>

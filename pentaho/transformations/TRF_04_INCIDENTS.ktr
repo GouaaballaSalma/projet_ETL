@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>TRF_04_INCIDENTS</name>
+    
+    <description>Segment X → LCN_INCIDENTS. X06 et X12 en centimes ÷ 100. X09/X10/X11/X14 dates converties.</description>
+    <extended_description/>
+    <trans_version>1.0</trans_version>
+    <trans_type>Normal</trans_type>
+    <parameters>
+      <parameter><name>FICHIER_ENTREE</name><default_value>C:/Users/hp/PycharmProjects/plateforme-lcn-etl-cfgv1/data/CIL_DFF_001_050_20260305_001</default_value></parameter>
+      <parameter><name>LOT_VAL</name><default_value>001</default_value></parameter>
+      <parameter><name>DATE_ARRETE_VAL</name><default_value>20260305</default_value></parameter>
+    </parameters>
+  </info>
+  <connection>
+    <name>ORACLE_LCN</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>-1</port>
+    <username>lcn_user</username>
+    <password>lcn_pass_2026</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute>
+        <code>CUSTOM_DRIVER_CLASS</code>
+        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
+      </attribute>
+      <attribute>
+        <code>CUSTOM_URL</code>
+        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
+      </attribute>
+    </attributes>
+  </connection>
+<order>
+    <hop><from>LIRE_FICHIER_BRUT</from><to>FILTRER_SEGMENT_X</to><enabled>Y</enabled></hop>
+    <hop><from>FILTRER_SEGMENT_X</from><to>EXTRAIRE_CHAMPS_X</to><enabled>Y</enabled></hop>
+    <hop><from>EXTRAIRE_CHAMPS_X</from><to>CONVERTIR_TYPES_X</to><enabled>Y</enabled></hop>
+    <hop><from>CONVERTIR_TYPES_X</from><to>CALCULER_MONTANTS</to><enabled>Y</enabled></hop>
+    <hop><from>CALCULER_MONTANTS</from><to>AJOUTER_LOT_DATE</to><enabled>Y</enabled></hop>
+    <hop><from>AJOUTER_LOT_DATE</from><to>CHARGER_LCN_INCIDENTS</to><enabled>Y</enabled></hop>
+  </order>
+
+  <step>
+    <name>LIRE_FICHIER_BRUT</name>
+    <type>TextFileInput</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <accept_filenames>N</accept_filenames>
+    <header>N</header>
+    <nr_headerlines>0</nr_headerlines>
+    <footer>N</footer>
+    <format>DOS</format>
+    <encoding>ISO-8859-1</encoding>
+    <length>Characters</length>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <file>
+      <name>${FICHIER_ENTREE}</name>
+      <filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>LIGNE_RAW</name><type>String</type>
+        <position>1</position><length>250</length>
+        <precision>-1</precision><trim_type>none</trim_type><repeat>N</repeat>
+      </field>
+    </fields>
+    <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>FILTRER_SEGMENT_X</name>
+    <type>FilterRows</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <send_true_to>EXTRAIRE_CHAMPS_X</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>LIGNE_RAW</leftvalue>
+        <function>LIKE</function>
+        <rightvalue/>
+        <value><name>constant</name><type>String</type><text>X%</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <GUI><xloc>240</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!--
+    STRUCTURE SEGMENT X (positionnel) :
+    Pos 1      : 'X'
+    Pos 2-4    : X02  CODE_BANQUE (3)
+    Pos 5-16   : X03  REF_IMPAYE (12)
+    Pos 17-17  : X04  TYPE_IMPAYE (1)
+    Pos 18-27  : X05  NUM_LCN (10)
+    Pos 28-42  : X06  MONTANT en centimes (15) → ÷ 100
+    Pos 43-45  : X07  DEVISE (3)
+    Pos 46-46  : X08  TYPE_SUPPORT (1)
+    Pos 47-54  : X09  DATE_EMISSION (8) → Date
+    Pos 55-62  : X10  DATE_ECHEANCE (8) → Date
+    Pos 63-70  : X11  DATE_CONSTAT (8) → Date
+    Pos 71-85  : X12  INSUFFISANCE en centimes (15) → ÷ 100
+    Pos 86-86  : X13  CODE_STATUT (1)
+    Pos 87-94  : X14  DATE_STATUT (8) → Date
+    Pos 95-110 : X15  REF_DOMICILIATAIRE (16)
+    Pos 111-134: X16  RIB (24)
+  -->
+  <step>
+    <name>EXTRAIRE_CHAMPS_X</name>
+    <type>StringCut</type>
+    <description>Extraction positionnelle segment X</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X02</out_stream_name><cut_from>2</cut_from><cut_to>4</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X03</out_stream_name><cut_from>5</cut_from><cut_to>16</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X04</out_stream_name><cut_from>17</cut_from><cut_to>17</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X05</out_stream_name><cut_from>18</cut_from><cut_to>27</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X06_CENTIMES_STR</out_stream_name><cut_from>28</cut_from><cut_to>42</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X07</out_stream_name><cut_from>43</cut_from><cut_to>45</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X08</out_stream_name><cut_from>46</cut_from><cut_to>46</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X09_STR</out_stream_name><cut_from>47</cut_from><cut_to>54</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X10_STR</out_stream_name><cut_from>55</cut_from><cut_to>62</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X11_STR</out_stream_name><cut_from>63</cut_from><cut_to>70</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X12_CENTIMES_STR</out_stream_name><cut_from>71</cut_from><cut_to>85</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X13</out_stream_name><cut_from>86</cut_from><cut_to>86</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X14_STR</out_stream_name><cut_from>87</cut_from><cut_to>94</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X15</out_stream_name><cut_from>95</cut_from><cut_to>110</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X16</out_stream_name><cut_from>111</cut_from><cut_to>134</cut_to></field>
+    </fields>
+    <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!-- Conversion types : montants String → Number et dates AAAAMMJJ → Date -->
+  <step>
+    <name>CONVERTIR_TYPES_X</name>
+    <type>SelectValues</type>
+    <description>Conversion X06/X12 en Number et X09/X10/X11/X14 en Date</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>X02</name></field>
+      <field><name>X03</name></field>
+      <field><name>X04</name></field>
+      <field><name>X05</name></field>
+      <field><name>X06_CENTIMES_STR</name><rename>X06_CENTIMES</rename></field>
+      <field><name>X07</name></field>
+      <field><name>X08</name></field>
+      <field><name>X09_STR</name><rename>X09</rename></field>
+      <field><name>X10_STR</name><rename>X10</rename></field>
+      <field><name>X11_STR</name><rename>X11</rename></field>
+      <field><name>X12_CENTIMES_STR</name><rename>X12_CENTIMES</rename></field>
+      <field><name>X13</name></field>
+      <field><name>X14_STR</name><rename>X14</rename></field>
+      <field><name>X15</name></field>
+      <field><name>X16</name></field>
+    </fields>
+    <select_unspecified>N</select_unspecified>
+    <meta>
+      <field><name>X06_CENTIMES</name><type>Number</type><format>0</format><length>15</length><precision>0</precision></field>
+      <field><name>X09</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
+      <field><name>X10</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
+      <field><name>X11</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
+      <field><name>X12_CENTIMES</name><type>Number</type><format>0</format><length>15</length><precision>0</precision></field>
+      <field><name>X14</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
+    </meta>
+    <GUI><xloc>560</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!-- Division par 100 : centimes → dirhams -->
+  <step>
+    <name>CALCULER_MONTANTS</name>
+    <type>Calculator</type>
+    <description>X06 = X06_CENTIMES / 100 et X12 = X12_CENTIMES / 100</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <calculation>
+      <calc_type>DIVIDE</calc_type>
+      <field_name>X06</field_name>
+      <field_A>X06_CENTIMES</field_A>
+      <field_B>100</field_B>
+      <field_C/>
+      <value_type>Number</value_type>
+      <value_length>15</value_length>
+      <value_precision>2</value_precision>
+      <remove>N</remove>
+      <conversion_mask/>
+    </calculation>
+    <calculation>
+      <calc_type>DIVIDE</calc_type>
+      <field_name>X12</field_name>
+      <field_A>X12_CENTIMES</field_A>
+      <field_B>100</field_B>
+      <field_C/>
+      <value_type>Number</value_type>
+      <value_length>15</value_length>
+      <value_precision>2</value_precision>
+      <remove>N</remove>
+      <conversion_mask/>
+    </calculation>
+    <GUI><xloc>720</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>AJOUTER_LOT_DATE</name>
+    <type>AddConstants</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>LOT</name><type>String</type><value>${LOT_VAL}</value></field>
+      <field><name>DATE_ARRETE_STR</name><type>String</type><value>${DATE_ARRETE_VAL}</value></field>
+    </fields>
+    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>CHARGER_LCN_INCIDENTS</name>
+    <type>InsertUpdate</type>
+    <description>Insert/Update vers LCN_INCIDENTS, clé = X03 (REF_IMPAYE)</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <connection>ORACLE_LCN</connection>
+<commit>500</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema>LCN_USER</schema>
+      <table>LCN_INCIDENTS</table>
+      <key><name>X03</name><field>X03</field><condition>=</condition><name2/></key>
+      <value><name>X02</name><rename>X02</rename><update>Y</update></value>
+      <value><name>X03</name><rename>X03</rename><update>N</update></value>
+      <value><name>X04</name><rename>X04</rename><update>Y</update></value>
+      <value><name>X05</name><rename>X05</rename><update>Y</update></value>
+      <value><name>X06</name><rename>X06</rename><update>Y</update></value>
+      <value><name>X07</name><rename>X07</rename><update>Y</update></value>
+      <value><name>X08</name><rename>X08</rename><update>Y</update></value>
+      <value><name>X09</name><rename>X09</rename><update>Y</update></value>
+      <value><name>X10</name><rename>X10</rename><update>Y</update></value>
+      <value><name>X11</name><rename>X11</rename><update>Y</update></value>
+      <value><name>X12</name><rename>X12</rename><update>Y</update></value>
+      <value><name>X13</name><rename>X13</rename><update>Y</update></value>
+      <value><name>X14</name><rename>X14</rename><update>Y</update></value>
+      <value><name>X15</name><rename>X15</rename><update>Y</update></value>
+      <value><name>X16</name><rename>X16</rename><update>Y</update></value>
+      <value><name>LOT</name><rename>LOT</rename><update>Y</update></value>
+    </lookup>
+    <GUI><xloc>1040</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step_error_handling/>
+</transformation>

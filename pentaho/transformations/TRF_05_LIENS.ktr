@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transformation>
+  <info>
+    <name>TRF_05_LIENS</name>
+    
+    <description>Segment U → LCN_LIENS (U02 + U03 uniquement, U04 filler ignoré)</description>
+    <extended_description/>
+    <trans_version>1.0</trans_version>
+    <trans_type>Normal</trans_type>
+    <parameters>
+      <parameter><name>FICHIER_ENTREE</name><default_value>C:/Users/hp/PycharmProjects/plateforme-lcn-etl-cfgv1/data/CIL_DFF_001_050_20260305_001</default_value></parameter>
+      <parameter><name>LOT_VAL</name><default_value>001</default_value></parameter>
+      <parameter><name>DATE_ARRETE_VAL</name><default_value>20260305</default_value></parameter>
+    </parameters>
+  </info>
+  <connection>
+    <name>ORACLE_LCN</name>
+    <server/>
+    <type>GENERIC</type>
+    <access>Native</access>
+    <database/>
+    <port>-1</port>
+    <username>lcn_user</username>
+    <password>lcn_pass_2026</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute>
+        <code>CUSTOM_DRIVER_CLASS</code>
+        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
+      </attribute>
+      <attribute>
+        <code>CUSTOM_URL</code>
+        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
+      </attribute>
+    </attributes>
+  </connection>
+<order>
+    <hop><from>LIRE_FICHIER_BRUT</from><to>FILTRER_SEGMENT_U</to><enabled>Y</enabled></hop>
+    <hop><from>FILTRER_SEGMENT_U</from><to>EXTRAIRE_CHAMPS_U</to><enabled>Y</enabled></hop>
+    <hop><from>EXTRAIRE_CHAMPS_U</from><to>NETTOYER_TRIM</to><enabled>Y</enabled></hop>
+    <hop><from>NETTOYER_TRIM</from><to>AJOUTER_LOT_DATE</to><enabled>Y</enabled></hop>
+    <hop><from>AJOUTER_LOT_DATE</from><to>CHARGER_LCN_LIENS</to><enabled>Y</enabled></hop>
+  </order>
+
+  <step>
+    <name>LIRE_FICHIER_BRUT</name>
+    <type>TextFileInput</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <accept_filenames>N</accept_filenames>
+    <header>N</header>
+    <nr_headerlines>0</nr_headerlines>
+    <footer>N</footer>
+    <format>DOS</format>
+    <encoding>ISO-8859-1</encoding>
+    <length>Characters</length>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <file>
+      <name>${FICHIER_ENTREE}</name>
+      <filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>LIGNE_RAW</name><type>String</type>
+        <position>1</position><length>100</length>
+        <precision>-1</precision><trim_type>none</trim_type><repeat>N</repeat>
+      </field>
+    </fields>
+    <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>FILTRER_SEGMENT_U</name>
+    <type>FilterRows</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <send_true_to>EXTRAIRE_CHAMPS_U</send_true_to>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>LIGNE_RAW</leftvalue>
+        <function>LIKE</function>
+        <rightvalue/>
+        <value><name>constant</name><type>String</type><text>U%</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <GUI><xloc>240</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <!--
+    STRUCTURE SEGMENT U (positionnel) :
+    Pos 1      : 'U'
+    Pos 2-13   : U02  REF_CLIENT (12)
+    Pos 14-25  : U03  REF_IMPAYE (12)
+    Pos 26+    : U04  FILLER → IGNORÉ
+  -->
+  <step>
+    <name>EXTRAIRE_CHAMPS_U</name>
+    <type>StringCut</type>
+    <description>Extraction U02 et U03 uniquement — U04 filler ignoré</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>U02</out_stream_name><cut_from>2</cut_from><cut_to>13</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>U03</out_stream_name><cut_from>14</cut_from><cut_to>25</cut_to></field>
+      <!-- U04 FILLER : IGNORÉ -->
+    </fields>
+    <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>NETTOYER_TRIM</name>
+    <type>StringOperations</type>
+    <description>Trim des espaces de bourrage dans U02 et U03</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field>
+        <in_stream_name>U02</in_stream_name>
+        <out_stream_name>U02</out_stream_name>
+        <trim_type>both</trim_type>
+        <lower_upper>none</lower_upper>
+        <padding_type>none</padding_type>
+        <pad_char/>
+        <pad_len/>
+        <init_cap>N</init_cap>
+        <mask_xml>N</mask_xml>
+        <digits_only>N</digits_only>
+        <remove_special_characters>N</remove_special_characters>
+      </field>
+      <field>
+        <in_stream_name>U03</in_stream_name>
+        <out_stream_name>U03</out_stream_name>
+        <trim_type>both</trim_type>
+        <lower_upper>none</lower_upper>
+        <padding_type>none</padding_type>
+        <pad_char/>
+        <pad_len/>
+        <init_cap>N</init_cap>
+        <mask_xml>N</mask_xml>
+        <digits_only>N</digits_only>
+        <remove_special_characters>N</remove_special_characters>
+      </field>
+    </fields>
+    <GUI><xloc>560</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>AJOUTER_LOT_DATE</name>
+    <type>AddConstants</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>LOT</name><type>String</type><value>${LOT_VAL}</value></field>
+      <field><name>DATE_ARRETE_STR</name><type>String</type><value>${DATE_ARRETE_VAL}</value></field>
+    </fields>
+    <GUI><xloc>720</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>CHARGER_LCN_LIENS</name>
+    <type>InsertUpdate</type>
+    <description>Insert/Update vers LCN_LIENS, clé = U02+U03</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <connection>ORACLE_LCN</connection>
+<commit>500</commit>
+    <update_bypassed>N</update_bypassed>
+    <lookup>
+      <schema>LCN_USER</schema>
+      <table>LCN_LIENS</table>
+      <key><name>U02</name><field>U02</field><condition>=</condition><name2/></key>
+      <key><name>U03</name><field>U03</field><condition>=</condition><name2/></key>
+      <value><name>U02</name><rename>U02</rename><update>N</update></value>
+      <value><name>U03</name><rename>U03</rename><update>N</update></value>
+      <value><name>LOT</name><rename>LOT</rename><update>Y</update></value>
+    </lookup>
+    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step_error_handling/>
+</transformation>
