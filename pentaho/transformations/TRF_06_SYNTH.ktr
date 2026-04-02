@@ -2,14 +2,22 @@
 <transformation>
   <info>
     <name>TRF_06_SYNTH</name>
-    
     <description>Construction LCN_SYNTH via SQL JOIN : INCIDENTS + LIENS + PP + PM + REF_STATUT</description>
     <extended_description/>
     <trans_version>1.0</trans_version>
     <trans_type>Normal</trans_type>
+    <directory>/</directory>
     <parameters>
-      <parameter><name>LOT_VAL</name><default_value>001</default_value><description>Numéro de lot à traiter</description></parameter>
-      <parameter><name>DATE_ARRETE_VAL</name><default_value>20260305</default_value><description>Date arrêtée format AAAAMMJJ</description></parameter>
+      <parameter>
+        <name>DATE_ARRETE_VAL</name>
+        <default_value>20260305</default_value>
+        <description>Date arrêtée format AAAAMMJJ</description>
+      </parameter>
+      <parameter>
+        <name>LOT_VAL</name>
+        <default_value>001</default_value>
+        <description>Numéro de lot à traiter</description>
+      </parameter>
     </parameters>
   </info>
   <connection>
@@ -20,44 +28,33 @@
     <database/>
     <port>-1</port>
     <username>lcn_user</username>
-    <password>lcn_pass_2026</password>
+    <password>Encrypted 2be98afa409c9ad94aa0abd4f8cc2fd8c</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
-      <attribute>
-        <code>CUSTOM_DRIVER_CLASS</code>
-        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
-      </attribute>
-      <attribute>
-        <code>CUSTOM_URL</code>
-        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
-      </attribute>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>oracle.jdbc.driver.OracleDriver</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute></attribute>
     </attributes>
   </connection>
-<order>
-    <hop><from>LIRE_SYNTH_SQL</from><to>CHARGER_LCN_SYNTH</to><enabled>Y</enabled></hop>
+  <order>
+    <hop>
+      <from>LIRE_SYNTH_SQL</from>
+      <to>CHARGER_LCN_SYNTH</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
 
-  <!--
-    Stratégie : TableInput avec le JOIN SQL complet, puis InsertUpdate vers LCN_SYNTH.
-    La jointure combine :
-      - LCN_INCIDENTS (source principale)
-      - LCN_LIENS (U03 = X03)
-      - LCN_CLIENTS_PP (B02 = U02)
-      - LCN_CLIENTS_PM (T02 = U02)
-      - LCN_REF_STATUT (CODE = X13)
-    Filtré par LOT = ${LOT_VAL}
-  -->
   <step>
     <name>LIRE_SYNTH_SQL</name>
     <type>TableInput</type>
     <description>Requête JOIN complète pour construire LCN_SYNTH</description>
     <distribute>Y</distribute>
+    <custom_distribution/>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <connection>ORACLE_LCN</connection>
-<sql><![CDATA[
+    <sql>
 SELECT
     NVL(TRIM(u.U02), TRIM(x.X03))   AS REF_CLIENT,
     TRIM(x.X03)                     AS REF_IMPAYE,
@@ -68,10 +65,10 @@ SELECT
     END                             AS TYPE_CLIENT,
     TRIM(pp.B08)                    AS NOM,
     TRIM(pp.B09)                    AS PRENOM,
-    TRIM(pp.B15)                    AS CIN,
+    TRIM(pp.B06)                    AS CIN,
     pp.B11                          AS DATE_NAISSANCE,
     TRIM(pm.T10)                    AS RAISON_SOCIALE,
-    TRIM(pm.T05)                    AS RC,
+    COALESCE(TRIM(pm.T05), TRIM(pp.B15)) AS RC,
     TRIM(x.X02)                     AS CODE_BANQUE,
     TRIM(x.X05)                     AS NUM_LCN,
     x.X06                           AS MONTANT,
@@ -97,31 +94,38 @@ LEFT JOIN LCN_USER.LCN_CLIENTS_PM pm
 LEFT JOIN LCN_USER.LCN_REF_STATUT rs
     ON (rs.CODE = TRIM(x.X13))
 WHERE x.LOT = '${LOT_VAL}'
-    ]]></sql>
+    </sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
     <variables_active>Y</variables_active>
     <lazy_conversion_active>N</lazy_conversion_active>
+    <cached_row_meta_active>N</cached_row_meta_active>
+    <row-meta/>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step>
     <name>CHARGER_LCN_SYNTH</name>
     <type>InsertUpdate</type>
-    <description>Insert/Update vers LCN_SYNTH, clé = REF_IMPAYE + LOT</description>
+    <description>Insert/Update vers LCN_SYNTH</description>
     <distribute>Y</distribute>
+    <custom_distribution/>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <connection>ORACLE_LCN</connection>
-<commit>500</commit>
+    <commit>500</commit>
     <update_bypassed>N</update_bypassed>
     <lookup>
       <schema>LCN_USER</schema>
       <table>LCN_SYNTH</table>
       <key><name>REF_IMPAYE</name><field>REF_IMPAYE</field><condition>=</condition><name2/></key>
+      <key><name>REF_CLIENT</name><field>REF_CLIENT</field><condition>=</condition><name2/></key>
       <key><name>LOT</name><field>LOT</field><condition>=</condition><name2/></key>
-      <value><name>REF_CLIENT</name><rename>REF_CLIENT</rename><update>Y</update></value>
+      <value><name>REF_CLIENT</name><rename>REF_CLIENT</rename><update>N</update></value>
       <value><name>REF_IMPAYE</name><rename>REF_IMPAYE</rename><update>N</update></value>
       <value><name>TYPE_CLIENT</name><rename>TYPE_CLIENT</rename><update>Y</update></value>
       <value><name>NOM</name><rename>NOM</rename><update>Y</update></value>
@@ -146,8 +150,13 @@ WHERE x.LOT = '${LOT_VAL}'
       <value><name>DATE_ARRETE</name><rename>DATE_ARRETE</rename><update>Y</update></value>
       <value><name>DATE_CHARGE</name><rename>DATE_CHARGE</rename><update>Y</update></value>
     </lookup>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step_error_handling/>
+  <slave-step-copy-partition-distribution/>
+  <slave_transformation>N</slave_transformation>
 </transformation>

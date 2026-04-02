@@ -2,7 +2,6 @@
 <transformation>
   <info>
     <name>TRF_01_ENTETE</name>
-    
     <description>Segment H → LCN_ENTETE</description>
     <extended_description/>
     <trans_version>1.0</trans_version>
@@ -28,30 +27,24 @@
     <database/>
     <port>-1</port>
     <username>lcn_user</username>
-    <password>lcn_pass_2026</password>
+    <password>Encrypted 2be98afa409c9ad94aa0abd4f8cc2fd8c</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
-      <attribute>
-        <code>CUSTOM_DRIVER_CLASS</code>
-        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
-      </attribute>
-      <attribute>
-        <code>CUSTOM_URL</code>
-        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
-      </attribute>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>oracle.jdbc.driver.OracleDriver</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute></attribute>
     </attributes>
   </connection>
-<order>
+  <order>
     <hop><from>LIRE_FICHIER_BRUT</from><to>FILTRER_SEGMENT_H</to><enabled>Y</enabled></hop>
     <hop><from>FILTRER_SEGMENT_H</from><to>EXTRAIRE_CHAMPS_H</to><enabled>Y</enabled></hop>
     <hop><from>EXTRAIRE_CHAMPS_H</from><to>CONVERTIR_DATES_H</to><enabled>Y</enabled></hop>
-    <hop><from>CONVERTIR_DATES_H</from><to>AJOUTER_METADATA</to><enabled>Y</enabled></hop>
-    <hop><from>AJOUTER_METADATA</from><to>CHARGER_LCN_ENTETE</to><enabled>Y</enabled></hop>
+    <hop><from>CONVERTIR_DATES_H</from><to>RECUPERER_VARIABLES</to><enabled>Y</enabled></hop>
+    <hop><from>RECUPERER_VARIABLES</from><to>DATE_SYSTEME</to><enabled>Y</enabled></hop>
+    <hop><from>DATE_SYSTEME</from><to>CHARGER_LCN_ENTETE</to><enabled>Y</enabled></hop>
   </order>
 
-  <!-- STEP 1 : Lecture ligne à ligne -->
   <step>
     <name>LIRE_FICHIER_BRUT</name>
     <type>TextFileInput</type>
@@ -63,14 +56,25 @@
     <passing_through_fields>N</passing_through_fields>
     <accept_field/>
     <accept_stepname/>
-    <separator/>
+    <separator>;</separator>
     <enclosure/>
     <enclosure_breaks>N</enclosure_breaks>
+    <escapechar/>
     <header>N</header>
     <nr_headerlines>0</nr_headerlines>
     <footer>N</footer>
     <nr_footerlines>0</nr_footerlines>
-    <noempty>N</noempty>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>1</nr_lines_per_page>
+    <nr_lines_doc_header>1</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownumByFile>N</rownumByFile>
+    <rownum_field/>
     <format>DOS</format>
     <encoding>ISO-8859-1</encoding>
     <length>Characters</length>
@@ -81,7 +85,10 @@
       <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
+      <type>CSV</type>
+      <compression>None</compression>
     </file>
+    <filters/>
     <fields>
       <field>
         <name>LIGNE_RAW</name>
@@ -99,10 +106,37 @@
         <repeat>N</repeat>
       </field>
     </fields>
+    <limit>0</limit>
+    <error_ignored>N</error_ignored>
+    <skip_bad_files>N</skip_bad_files>
+    <file_error_field/>
+    <file_error_message_field/>
+    <error_line_skipped>N</error_line_skipped>
+    <error_count_field/>
+    <error_fields_field/>
+    <error_text_field/>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension/>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension/>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension/>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>fr_FR</date_format_locale>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!-- STEP 2 : Filtre segment H -->
   <step>
     <name>FILTRER_SEGMENT_H</name>
     <type>FilterRows</type>
@@ -118,36 +152,35 @@
         <leftvalue>LIGNE_RAW</leftvalue>
         <function>LIKE</function>
         <rightvalue/>
-        <value>
-          <name>constant</name><type>String</type><text>H%</text>
-          <length>-1</length><precision>-1</precision><isnull>N</isnull><mask/>
-        </value>
-        <operator>-</operator>
+        <value><name>constant</name><type>String</type><text>H%</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value>
       </condition>
     </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>240</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!-- STEP 3 : Extraction positionnelle segment H
-       H : pos 1=H, 2-4=H02(LOT 3), 5-12=H03(DATE_DEBUT 8), 13-20=H04(DATE_FIN 8), 21-23=H05(3), 24-27=H06(4) -->
   <step>
     <name>EXTRAIRE_CHAMPS_H</name>
     <type>StringCut</type>
-    <description>Extraction des 5 champs positionnels du segment H</description>
+    <description>Extraction des champs positionnels (Index -1)</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H02</out_stream_name><cut_from>2</cut_from><cut_to>4</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H03_STR</out_stream_name><cut_from>5</cut_from><cut_to>12</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H04_STR</out_stream_name><cut_from>13</cut_from><cut_to>20</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H05</out_stream_name><cut_from>21</cut_from><cut_to>23</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H06</out_stream_name><cut_from>24</cut_from><cut_to>27</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H02</out_stream_name><cut_from>1</cut_from><cut_to>4</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H03_STR</out_stream_name><cut_from>4</cut_from><cut_to>12</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H04_STR</out_stream_name><cut_from>12</cut_from><cut_to>20</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H05</out_stream_name><cut_from>20</cut_from><cut_to>23</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>H06</out_stream_name><cut_from>23</cut_from><cut_to>27</cut_to></field>
     </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!-- STEP 4 : Conversion dates AAAAMMJJ → Date Oracle -->
   <step>
     <name>CONVERTIR_DATES_H</name>
     <type>SelectValues</type>
@@ -156,45 +189,99 @@
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><name>H02</name><length>3</length><precision>-1</precision></field>
+      <field><name>H02</name><rename/></field>
       <field><name>H03_STR</name><rename>H03</rename></field>
       <field><name>H04_STR</name><rename>H04</rename></field>
-      <field><name>H05</name><length>3</length></field>
-      <field><name>H06</name><length>4</length></field>
+      <field><name>H05</name><rename/></field>
+      <field><name>H06</name><rename/></field>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>H03</name>
+        <rename>H03</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>H04</name>
+        <rename>H04</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
     </fields>
-    <select_unspecified>N</select_unspecified>
-    <meta>
-      <field><name>H03</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
-      <field><name>H04</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
-    </meta>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>560</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!-- STEP 5 : Ajout NOM_FICHIER et DATE_CHARGE -->
   <step>
-    <name>AJOUTER_METADATA</name>
-    <type>AddConstants</type>
-    <description>Ajout NOM_FICHIER et DATE_CHARGE=NOW</description>
+    <name>RECUPERER_VARIABLES</name>
+    <type>GetVariable</type>
+    <description>Récupération de la variable du nom de fichier</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
       <field>
         <name>NOM_FICHIER</name>
+        <variable>${NOM_FICHIER}</variable>
         <type>String</type>
-        <value>${NOM_FICHIER}</value>
-      </field>
-      <field>
-        <name>DATE_CHARGE</name>
-        <type>Date</type>
-        <format>yyyy-MM-dd HH:mm:ss</format>
-        <value/>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
       </field>
     </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>720</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!-- STEP 6 : Insert/Update → LCN_ENTETE (clé = NOM_FICHIER) -->
+  <step>
+    <name>DATE_SYSTEME</name>
+    <type>SystemInfo</type>
+    <description>Génération de la date de chargement du flux</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field>
+        <name>DATE_CHARGE</name>
+        <type>system date (variable)</type>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
   <step>
     <name>CHARGER_LCN_ENTETE</name>
     <type>InsertUpdate</type>
@@ -203,7 +290,7 @@
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <connection>ORACLE_LCN</connection>
-<commit>100</commit>
+    <commit>100</commit>
     <update_bypassed>N</update_bypassed>
     <lookup>
       <schema>LCN_USER</schema>
@@ -217,8 +304,13 @@
       <value><name>NOM_FICHIER</name><rename>NOM_FICHIER</rename><update>N</update></value>
       <value><name>DATE_CHARGE</name><rename>DATE_CHARGE</rename><update>Y</update></value>
     </lookup>
-    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>1040</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step_error_handling/>
+  <slave-step-copy-partition-distribution/>
+  <slave_transformation>N</slave_transformation>
 </transformation>

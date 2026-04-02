@@ -2,7 +2,6 @@
 <transformation>
   <info>
     <name>TRF_03_CLIENTS_PM</name>
-    
     <description>Segment T → LCN_CLIENTS_PM (T07 filler ignoré, T11 date convertie)</description>
     <extended_description/>
     <trans_version>1.0</trans_version>
@@ -21,27 +20,23 @@
     <database/>
     <port>-1</port>
     <username>lcn_user</username>
-    <password>lcn_pass_2026</password>
+    <password>Encrypted 2be98afa409c9ad94aa0abd4f8cc2fd8c</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
-      <attribute>
-        <code>CUSTOM_DRIVER_CLASS</code>
-        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
-      </attribute>
-      <attribute>
-        <code>CUSTOM_URL</code>
-        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
-      </attribute>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>oracle.jdbc.driver.OracleDriver</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute></attribute>
     </attributes>
   </connection>
-<order>
+  <order>
     <hop><from>LIRE_FICHIER_BRUT</from><to>FILTRER_SEGMENT_T</to><enabled>Y</enabled></hop>
     <hop><from>FILTRER_SEGMENT_T</from><to>EXTRAIRE_CHAMPS_T</to><enabled>Y</enabled></hop>
-    <hop><from>EXTRAIRE_CHAMPS_T</from><to>CONVERTIR_TYPES_T</to><enabled>Y</enabled></hop>
-    <hop><from>CONVERTIR_TYPES_T</from><to>AJOUTER_LOT_DATE</to><enabled>Y</enabled></hop>
-    <hop><from>AJOUTER_LOT_DATE</from><to>CHARGER_LCN_CLIENTS_PM</to><enabled>Y</enabled></hop>
+    <hop><from>EXTRAIRE_CHAMPS_T</from><to>NETTOYER_ESPACES_DATES</to><enabled>Y</enabled></hop>
+    <hop><from>NETTOYER_ESPACES_DATES</from><to>VALIDER_DATES</to><enabled>Y</enabled></hop>
+    <hop><from>VALIDER_DATES</from><to>AJOUTER_LOT_DATE</to><enabled>Y</enabled></hop>
+    <hop><from>AJOUTER_LOT_DATE</from><to>CONVERTIR_TYPES_T</to><enabled>Y</enabled></hop>
+    <hop><from>CONVERTIR_TYPES_T</from><to>CHARGER_LCN_CLIENTS_PM</to><enabled>Y</enabled></hop>
   </order>
 
   <step>
@@ -51,9 +46,28 @@
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <accept_filenames>N</accept_filenames>
+    <passing_through_fields>N</passing_through_fields>
+    <accept_field/>
+    <accept_stepname/>
+    <separator>;</separator>
+    <enclosure/>
+    <enclosure_breaks>N</enclosure_breaks>
+    <escapechar/>
     <header>N</header>
     <nr_headerlines>0</nr_headerlines>
     <footer>N</footer>
+    <nr_footerlines>1</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>1</nr_lines_per_page>
+    <nr_lines_doc_header>1</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownumByFile>N</rownumByFile>
+    <rownum_field/>
     <format>DOS</format>
     <encoding>ISO-8859-1</encoding>
     <length>Characters</length>
@@ -61,16 +75,58 @@
     <file>
       <name>${FICHIER_ENTREE}</name>
       <filemask/>
+      <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
+      <type>CSV</type>
+      <compression>None</compression>
     </file>
+    <filters/>
     <fields>
       <field>
-        <name>LIGNE_RAW</name><type>String</type>
-        <position>1</position><length>700</length>
-        <precision>-1</precision><trim_type>none</trim_type><repeat>N</repeat>
+        <name>LIGNE_RAW</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <ifnull/>
+        <position>1</position>
+        <length>700</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
     </fields>
+    <limit>0</limit>
+    <error_ignored>N</error_ignored>
+    <skip_bad_files>N</skip_bad_files>
+    <file_error_field/>
+    <file_error_message_field/>
+    <error_line_skipped>N</error_line_skipped>
+    <error_count_field/>
+    <error_fields_field/>
+    <error_text_field/>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension/>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension/>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension/>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>fr_FR</date_format_locale>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
@@ -89,74 +145,130 @@
         <function>LIKE</function>
         <rightvalue/>
         <value><name>constant</name><type>String</type><text>T%</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value>
-        <operator>-</operator>
       </condition>
     </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>240</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!--
-    STRUCTURE SEGMENT T (positionnel) :
-    Pos 1      : 'T'
-    Pos 2-13   : T02  REF_CLIENT PM (12)
-    Pos 14-14  : T03  TYPE (1)
-    Pos 15-17  : T04  CODE_PAYS (3)
-    Pos 18-37  : T05  RC (20)
-    Pos 38-57  : T06  ICE (20)
-    Pos 58-77  : T07  FILLER → IGNORÉ (20)
-    Pos 78-97  : T08  PATENTE (20)
-    Pos 98-117 : T09  IDENTIF (20)
-    Pos 118-237: T10  RAISON_SOCIALE (120)
-    Pos 238-245: T11  DATE_CREATION (8) → Date
-    Pos 246-247: T12  CODE_FORME_JUR (2)
-    Pos 248-297: T13  ADRESSE1 (50)
-    Pos 298-347: T14  ADRESSE2 (50)
-    Pos 348-397: T15  ADRESSE3 (50)
-    Pos 398-447: T16  ADRESSE4 (50)
-    Pos 448-497: T17  COMMUNE (50)
-    Pos 498-541: T18  VILLE (44)
-    Pos 542-544: T19  CODE_PAYS_ADR (3)
-    Pos 545-549: T20  CODE_ISO (5)
-    Pos 550-551: T21  CODE_RESIDENC (2)
-    Pos 552-552: T22  INDICATEUR (1)
-    Pos 553-672: T23  OBJ_SOCIAL (120)
-    Pos 673-673: T24  CATEGORIE (1)
-    Pos 674-696: T25  NUM_AFFILIAT (23)
-  -->
   <step>
     <name>EXTRAIRE_CHAMPS_T</name>
     <type>StringCut</type>
-    <description>Extraction positionnelle segment T — T07 filler ignoré</description>
+    <description>Extraction positionnelle BAM avec regle de l index - 1</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T02</out_stream_name><cut_from>2</cut_from><cut_to>13</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T03</out_stream_name><cut_from>14</cut_from><cut_to>14</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T04</out_stream_name><cut_from>15</cut_from><cut_to>17</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T05</out_stream_name><cut_from>18</cut_from><cut_to>37</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T06</out_stream_name><cut_from>38</cut_from><cut_to>57</cut_to></field>
-      <!-- T07 FILLER pos 58-77 : IGNORÉ -->
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T08</out_stream_name><cut_from>78</cut_from><cut_to>97</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T09</out_stream_name><cut_from>98</cut_from><cut_to>117</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T10</out_stream_name><cut_from>118</cut_from><cut_to>237</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T11_STR</out_stream_name><cut_from>238</cut_from><cut_to>245</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T12</out_stream_name><cut_from>246</cut_from><cut_to>247</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T13</out_stream_name><cut_from>248</cut_from><cut_to>297</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T14</out_stream_name><cut_from>298</cut_from><cut_to>347</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T15</out_stream_name><cut_from>348</cut_from><cut_to>397</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T16</out_stream_name><cut_from>398</cut_from><cut_to>447</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T17</out_stream_name><cut_from>448</cut_from><cut_to>497</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T18</out_stream_name><cut_from>498</cut_from><cut_to>541</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T19</out_stream_name><cut_from>542</cut_from><cut_to>544</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T20</out_stream_name><cut_from>545</cut_from><cut_to>549</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T21</out_stream_name><cut_from>550</cut_from><cut_to>551</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T22</out_stream_name><cut_from>552</cut_from><cut_to>552</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T23</out_stream_name><cut_from>553</cut_from><cut_to>672</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T24</out_stream_name><cut_from>673</cut_from><cut_to>673</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T25</out_stream_name><cut_from>674</cut_from><cut_to>696</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T02</out_stream_name><cut_from>1</cut_from><cut_to>13</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T03</out_stream_name><cut_from>13</cut_from><cut_to>14</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T04</out_stream_name><cut_from>14</cut_from><cut_to>17</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T05</out_stream_name><cut_from>17</cut_from><cut_to>37</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T06</out_stream_name><cut_from>37</cut_from><cut_to>57</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T08</out_stream_name><cut_from>77</cut_from><cut_to>97</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T09</out_stream_name><cut_from>97</cut_from><cut_to>117</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T10</out_stream_name><cut_from>117</cut_from><cut_to>237</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T11_STR</out_stream_name><cut_from>237</cut_from><cut_to>245</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T12</out_stream_name><cut_from>245</cut_from><cut_to>247</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T13</out_stream_name><cut_from>247</cut_from><cut_to>297</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T14</out_stream_name><cut_from>297</cut_from><cut_to>347</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T15</out_stream_name><cut_from>347</cut_from><cut_to>397</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T16</out_stream_name><cut_from>397</cut_from><cut_to>447</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T17</out_stream_name><cut_from>447</cut_from><cut_to>497</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T18</out_stream_name><cut_from>497</cut_from><cut_to>541</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T19</out_stream_name><cut_from>541</cut_from><cut_to>544</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T20</out_stream_name><cut_from>544</cut_from><cut_to>549</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T21</out_stream_name><cut_from>549</cut_from><cut_to>551</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T22</out_stream_name><cut_from>551</cut_from><cut_to>552</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T23</out_stream_name><cut_from>552</cut_from><cut_to>672</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T24</out_stream_name><cut_from>672</cut_from><cut_to>673</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>T25</out_stream_name><cut_from>673</cut_from><cut_to>696</cut_to></field>
     </fields>
-    <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>384</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>NETTOYER_ESPACES_DATES</name>
+    <type>StringOperations</type>
+    <description>Retire les espaces inutiles pour eviter ORA-12899</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><in_stream_name>T11_STR</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>T10</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>T13</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>T14</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>T15</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>T16</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>T17</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>T18</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>T23</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>528</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>VALIDER_DATES</name>
+    <type>ScriptValueMod</type>
+    <description>Validation T11_STR</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>VALIDER_DATES</jsScript_name>
+        <jsScript_script>
+var t11 = T11_STR;
+
+if (t11 != null &amp;&amp; t11.trim().length == 8 &amp;&amp; t11.trim().match(/^[0-9]{8}$/)) {
+  var s11 = t11.trim();
+  var annee = parseInt(s11.substring(0, 4), 10);
+  var mois  = parseInt(s11.substring(4, 6), 10);
+  var jour  = parseInt(s11.substring(6, 8), 10);
+
+  if (annee &lt; 1900 || mois &lt; 1 || mois > 12 || jour &lt; 1 || jour > 31) {
+    T11_STR = null;
+  }
+} else {
+  T11_STR = null;
+}
+        </jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field><name>T11_STR</name><rename>T11_STR</rename><type>String</type><length>-1</length><precision>-1</precision><replace>Y</replace></field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>688</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>AJOUTER_LOT_DATE</name>
+    <type>GetVariable</type>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>LOT</name><variable>${LOT_VAL}</variable><type>String</type><format/><currency/><decimal/><group/><length>-1</length><precision>-1</precision><trim_type>none</trim_type></field>
+      <field><name>DATE_ARRETE_STR</name><variable>${DATE_ARRETE_VAL}</variable><type>String</type><format/><currency/><decimal/><group/><length>-1</length><precision>-1</precision><trim_type>none</trim_type></field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>832</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step>
@@ -166,45 +278,81 @@
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><name>T02</name></field><field><name>T03</name></field><field><name>T04</name></field>
-      <field><name>T05</name></field><field><name>T06</name></field><field><name>T08</name></field>
-      <field><name>T09</name></field><field><name>T10</name></field>
+      <field><name>T02</name><rename/></field>
+      <field><name>T03</name><rename/></field>
+      <field><name>T04</name><rename/></field>
+      <field><name>T05</name><rename/></field>
+      <field><name>T06</name><rename/></field>
+      <field><name>T08</name><rename/></field>
+      <field><name>T09</name><rename/></field>
+      <field><name>T10</name><rename/></field>
       <field><name>T11_STR</name><rename>T11</rename></field>
-      <field><name>T12</name></field><field><name>T13</name></field><field><name>T14</name></field>
-      <field><name>T15</name></field><field><name>T16</name></field><field><name>T17</name></field>
-      <field><name>T18</name></field><field><name>T19</name></field><field><name>T20</name></field>
-      <field><name>T21</name></field><field><name>T22</name></field><field><name>T23</name></field>
-      <field><name>T24</name></field><field><name>T25</name></field>
+      <field><name>T12</name><rename/></field>
+      <field><name>T13</name><rename/></field>
+      <field><name>T14</name><rename/></field>
+      <field><name>T15</name><rename/></field>
+      <field><name>T16</name><rename/></field>
+      <field><name>T17</name><rename/></field>
+      <field><name>T18</name><rename/></field>
+      <field><name>T19</name><rename/></field>
+      <field><name>T20</name><rename/></field>
+      <field><name>T21</name><rename/></field>
+      <field><name>T22</name><rename/></field>
+      <field><name>T23</name><rename/></field>
+      <field><name>T24</name><rename/></field>
+      <field><name>T25</name><rename/></field>
+      <field><name>LOT</name><rename/></field>
+      <field><name>DATE_ARRETE_STR</name><rename>DATE_ARRETE</rename></field>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>T11</name>
+        <rename>T11</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>DATE_ARRETE</name>
+        <rename>DATE_ARRETE</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
     </fields>
-    <select_unspecified>N</select_unspecified>
-    <meta>
-      <field><name>T11</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
-    </meta>
-    <GUI><xloc>560</xloc><yloc>160</yloc><draw>Y</draw></GUI>
-  </step>
-
-  <step>
-    <name>AJOUTER_LOT_DATE</name>
-    <type>AddConstants</type>
-    <distribute>Y</distribute>
-    <copies>1</copies>
-    <partitioning><method>none</method><schema_name/></partitioning>
-    <fields>
-      <field><name>LOT</name><type>String</type><value>${LOT_VAL}</value></field>
-      <field><name>DATE_ARRETE_STR</name><type>String</type><value>${DATE_ARRETE_VAL}</value></field>
-    </fields>
-    <GUI><xloc>720</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>992</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step>
     <name>CHARGER_LCN_CLIENTS_PM</name>
     <type>InsertUpdate</type>
-    <description>Insert/Update vers LCN_CLIENTS_PM, clé = T02</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <connection>ORACLE_LCN</connection>
-<commit>500</commit>
+    <commit>500</commit>
     <update_bypassed>N</update_bypassed>
     <lookup>
       <schema>LCN_USER</schema>
@@ -234,9 +382,15 @@
       <value><name>T24</name><rename>T24</rename><update>Y</update></value>
       <value><name>T25</name><rename>T25</rename><update>Y</update></value>
       <value><name>LOT</name><rename>LOT</rename><update>Y</update></value>
+      <value><name>DATE_ARRETE</name><rename>DATE_ARRETE</rename><update>Y</update></value>
     </lookup>
-    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>1184</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step_error_handling/>
+  <slave-step-copy-partition-distribution/>
+  <slave_transformation>N</slave_transformation>
 </transformation>

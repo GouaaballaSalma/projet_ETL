@@ -329,7 +329,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>60</xloc>
+      <xloc>48</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -342,7 +342,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>220</xloc>
+      <xloc>208</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -357,22 +357,22 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>220</xloc>
+      <xloc>208</xloc>
       <yloc>272</yloc>
       <attributes_kjc/>
     </entry>
     <entry>
-      <name>TRF_CHECK_DOUBLON</name>
+      <name>TRF_01_ENTETE</name>
       <description/>
       <type>TRANS</type>
       <attributes/>
       <specification_method>filename</specification_method>
       <trans_object_id/>
-      <filename>C:\Users\hp\PycharmProjects\plateforme-lcn-etl-cfgv1\pentaho\transformations\TRF_00_CHECK_DOUBLON.ktr</filename>
+      <filename>C:\Users\hp\PycharmProjects\plateforme-lcn-etl-cfgv1\pentaho\transformations\TRF_01_ENTETE.ktr</filename>
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
-      <exec_per_row>Y</exec_per_row>
+      <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
       <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
@@ -401,32 +401,17 @@
       <attributes_kjc/>
     </entry>
     <entry>
-      <name>LOG_DEJA_CHARGE</name>
-      <description/>
-      <type>WRITE_TO_LOG</type>
-      <attributes/>
-      <logmessage>INFO : Le fichier ${NOM_FICHIER} est deja charge. Traitement ignore.</logmessage>
-      <loglevel>Basic</loglevel>
-      <logsubject/>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>560</xloc>
-      <yloc>272</yloc>
-      <attributes_kjc/>
-    </entry>
-    <entry>
-      <name>TRF_01_ENTETE</name>
+      <name>TRF_02_CLIENTS_PP</name>
       <description/>
       <type>TRANS</type>
       <attributes/>
       <specification_method>filename</specification_method>
       <trans_object_id/>
-      <filename>C:\Users\hp\PycharmProjects\plateforme-lcn-etl-cfgv1\pentaho\transformations\TRF_01_ENTETE.ktr</filename>
+      <filename>C:\Users\hp\PycharmProjects\plateforme-lcn-etl-cfgv1\pentaho\transformations\TRF_02_CLIENTS_PP.ktr</filename>
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
-      <exec_per_row>Y</exec_per_row>
+      <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
       <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
@@ -450,46 +435,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>640</xloc>
-      <yloc>112</yloc>
-      <attributes_kjc/>
-    </entry>
-    <entry>
-      <name>TRF_02_CLIENTS_PP</name>
-      <description/>
-      <type>TRANS</type>
-      <attributes/>
-      <specification_method>filename</specification_method>
-      <trans_object_id/>
-      <filename>C:\Users\hp\PycharmProjects\plateforme-lcn-etl-cfgv1\pentaho\transformations\TRF_02_CLIENTS_PP.ktr</filename>
-      <transname/>
-      <arg_from_previous>N</arg_from_previous>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>Y</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <cluster>N</cluster>
-      <slave_server_name/>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <logging_remote_work>N</logging_remote_work>
-      <run_configuration>Pentaho local</run_configuration>
-      <suppress_result_data>N</suppress_result_data>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>880</xloc>
+      <xloc>560</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -504,7 +450,7 @@
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
-      <exec_per_row>Y</exec_per_row>
+      <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
       <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
@@ -528,7 +474,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1040</xloc>
+      <xloc>720</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -543,7 +489,7 @@
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
-      <exec_per_row>Y</exec_per_row>
+      <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
       <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
@@ -567,7 +513,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1200</xloc>
+      <xloc>880</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -582,7 +528,7 @@
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
-      <exec_per_row>Y</exec_per_row>
+      <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
       <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
@@ -606,7 +552,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1360</xloc>
+      <xloc>1040</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -621,7 +567,7 @@
       <transname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
-      <exec_per_row>Y</exec_per_row>
+      <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
       <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
@@ -645,7 +591,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1520</xloc>
+      <xloc>1184</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -660,7 +606,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1680</xloc>
+      <xloc>1328</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -675,7 +621,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1040</xloc>
+      <xloc>784</xloc>
       <yloc>272</yloc>
       <attributes_kjc/>
     </entry>
@@ -697,7 +643,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1840</xloc>
+      <xloc>1472</xloc>
       <yloc>112</yloc>
       <attributes_kjc/>
     </entry>
@@ -710,7 +656,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1200</xloc>
+      <xloc>976</xloc>
       <yloc>272</yloc>
       <attributes_kjc/>
     </entry>
@@ -727,7 +673,7 @@
     </hop>
     <hop>
       <from>VERIFIER_FICHIER_EXISTE</from>
-      <to>TRF_CHECK_DOUBLON</to>
+      <to>TRF_01_ENTETE</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -750,25 +696,7 @@
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>TRF_CHECK_DOUBLON</from>
-      <to>LOG_ERREUR</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
       <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>LOG_DEJA_CHARGE</from>
-      <to>FIN_SUCCES</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
     </hop>
     <hop>
       <from>TRF_01_ENTETE</from>
@@ -885,7 +813,7 @@
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
+      <unconditional>N</unconditional>
     </hop>
     <hop>
       <from>LOG_ERREUR</from>
@@ -893,17 +821,8 @@
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
+      <evaluation>N</evaluation>
       <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>TRF_CHECK_DOUBLON</from>
-      <to>TRF_01_ENTETE</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

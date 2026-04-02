@@ -2,7 +2,6 @@
 <transformation>
   <info>
     <name>TRF_05_LIENS</name>
-    
     <description>Segment U → LCN_LIENS (U02 + U03 uniquement, U04 filler ignoré)</description>
     <extended_description/>
     <trans_version>1.0</trans_version>
@@ -21,27 +20,22 @@
     <database/>
     <port>-1</port>
     <username>lcn_user</username>
-    <password>lcn_pass_2026</password>
+    <password>Encrypted 2be98afa409c9ad94aa0abd4f8cc2fd8c</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
-      <attribute>
-        <code>CUSTOM_DRIVER_CLASS</code>
-        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
-      </attribute>
-      <attribute>
-        <code>CUSTOM_URL</code>
-        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
-      </attribute>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>oracle.jdbc.driver.OracleDriver</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute></attribute>
     </attributes>
   </connection>
-<order>
+  <order>
     <hop><from>LIRE_FICHIER_BRUT</from><to>FILTRER_SEGMENT_U</to><enabled>Y</enabled></hop>
     <hop><from>FILTRER_SEGMENT_U</from><to>EXTRAIRE_CHAMPS_U</to><enabled>Y</enabled></hop>
     <hop><from>EXTRAIRE_CHAMPS_U</from><to>NETTOYER_TRIM</to><enabled>Y</enabled></hop>
     <hop><from>NETTOYER_TRIM</from><to>AJOUTER_LOT_DATE</to><enabled>Y</enabled></hop>
-    <hop><from>AJOUTER_LOT_DATE</from><to>CHARGER_LCN_LIENS</to><enabled>Y</enabled></hop>
+    <hop><from>AJOUTER_LOT_DATE</from><to>CONVERTIR_TYPES_U</to><enabled>Y</enabled></hop>
+    <hop><from>CONVERTIR_TYPES_U</from><to>CHARGER_LCN_LIENS</to><enabled>Y</enabled></hop>
   </order>
 
   <step>
@@ -51,9 +45,28 @@
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <accept_filenames>N</accept_filenames>
+    <passing_through_fields>N</passing_through_fields>
+    <accept_field/>
+    <accept_stepname/>
+    <separator>;</separator>
+    <enclosure/>
+    <enclosure_breaks>N</enclosure_breaks>
+    <escapechar/>
     <header>N</header>
     <nr_headerlines>0</nr_headerlines>
     <footer>N</footer>
+    <nr_footerlines>1</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>1</nr_lines_per_page>
+    <nr_lines_doc_header>1</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownumByFile>N</rownumByFile>
+    <rownum_field/>
     <format>DOS</format>
     <encoding>ISO-8859-1</encoding>
     <length>Characters</length>
@@ -61,16 +74,58 @@
     <file>
       <name>${FICHIER_ENTREE}</name>
       <filemask/>
+      <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
+      <type>CSV</type>
+      <compression>None</compression>
     </file>
+    <filters/>
     <fields>
       <field>
-        <name>LIGNE_RAW</name><type>String</type>
-        <position>1</position><length>100</length>
-        <precision>-1</precision><trim_type>none</trim_type><repeat>N</repeat>
+        <name>LIGNE_RAW</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <ifnull/>
+        <position>1</position>
+        <length>100</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
     </fields>
+    <limit>0</limit>
+    <error_ignored>N</error_ignored>
+    <skip_bad_files>N</skip_bad_files>
+    <file_error_field/>
+    <file_error_message_field/>
+    <error_line_skipped>N</error_line_skipped>
+    <error_count_field/>
+    <error_fields_field/>
+    <error_text_field/>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension/>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension/>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension/>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>fr_FR</date_format_locale>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
@@ -89,31 +144,28 @@
         <function>LIKE</function>
         <rightvalue/>
         <value><name>constant</name><type>String</type><text>U%</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value>
-        <operator>-</operator>
       </condition>
     </compare>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>240</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!--
-    STRUCTURE SEGMENT U (positionnel) :
-    Pos 1      : 'U'
-    Pos 2-13   : U02  REF_CLIENT (12)
-    Pos 14-25  : U03  REF_IMPAYE (12)
-    Pos 26+    : U04  FILLER → IGNORÉ
-  -->
   <step>
     <name>EXTRAIRE_CHAMPS_U</name>
     <type>StringCut</type>
-    <description>Extraction U02 et U03 uniquement — U04 filler ignoré</description>
+    <description>Extraction U02 et U03 (Index BAM - 1)</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>U02</out_stream_name><cut_from>2</cut_from><cut_to>13</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>U03</out_stream_name><cut_from>14</cut_from><cut_to>25</cut_to></field>
-      <!-- U04 FILLER : IGNORÉ -->
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>U02</out_stream_name><cut_from>1</cut_from><cut_to>13</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>U03</out_stream_name><cut_from>13</cut_from><cut_to>25</cut_to></field>
     </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
@@ -125,58 +177,77 @@
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field>
-        <in_stream_name>U02</in_stream_name>
-        <out_stream_name>U02</out_stream_name>
-        <trim_type>both</trim_type>
-        <lower_upper>none</lower_upper>
-        <padding_type>none</padding_type>
-        <pad_char/>
-        <pad_len/>
-        <init_cap>N</init_cap>
-        <mask_xml>N</mask_xml>
-        <digits_only>N</digits_only>
-        <remove_special_characters>N</remove_special_characters>
-      </field>
-      <field>
-        <in_stream_name>U03</in_stream_name>
-        <out_stream_name>U03</out_stream_name>
-        <trim_type>both</trim_type>
-        <lower_upper>none</lower_upper>
-        <padding_type>none</padding_type>
-        <pad_char/>
-        <pad_len/>
-        <init_cap>N</init_cap>
-        <mask_xml>N</mask_xml>
-        <digits_only>N</digits_only>
-        <remove_special_characters>N</remove_special_characters>
-      </field>
+      <field><in_stream_name>U02</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>U03</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
     </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>560</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step>
     <name>AJOUTER_LOT_DATE</name>
-    <type>AddConstants</type>
+    <type>GetVariable</type>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><name>LOT</name><type>String</type><value>${LOT_VAL}</value></field>
-      <field><name>DATE_ARRETE_STR</name><type>String</type><value>${DATE_ARRETE_VAL}</value></field>
+      <field><name>LOT</name><variable>${LOT_VAL}</variable><type>String</type><format/><currency/><decimal/><group/><length>-1</length><precision>-1</precision><trim_type>none</trim_type></field>
+      <field><name>DATE_ARRETE_STR</name><variable>${DATE_ARRETE_VAL}</variable><type>String</type><format/><currency/><decimal/><group/><length>-1</length><precision>-1</precision><trim_type>none</trim_type></field>
     </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
     <GUI><xloc>720</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>CONVERTIR_TYPES_U</name>
+    <type>SelectValues</type>
+    <description>Conversion de DATE_ARRETE_STR vers DATE</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>U02</name><rename/></field>
+      <field><name>U03</name><rename/></field>
+      <field><name>LOT</name><rename/></field>
+      <field><name>DATE_ARRETE_STR</name><rename>DATE_ARRETE</rename></field>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>DATE_ARRETE</name>
+        <rename>DATE_ARRETE</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step>
     <name>CHARGER_LCN_LIENS</name>
     <type>InsertUpdate</type>
-    <description>Insert/Update vers LCN_LIENS, clé = U02+U03</description>
+    <description>Insert/Update vers LCN_LIENS</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <connection>ORACLE_LCN</connection>
-<commit>500</commit>
+    <commit>500</commit>
     <update_bypassed>N</update_bypassed>
     <lookup>
       <schema>LCN_USER</schema>
@@ -186,9 +257,15 @@
       <value><name>U02</name><rename>U02</rename><update>N</update></value>
       <value><name>U03</name><rename>U03</rename><update>N</update></value>
       <value><name>LOT</name><rename>LOT</rename><update>Y</update></value>
+      <value><name>DATE_ARRETE</name><rename>DATE_ARRETE</rename><update>Y</update></value>
     </lookup>
-    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>1040</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step_error_handling/>
+  <slave-step-copy-partition-distribution/>
+  <slave_transformation>N</slave_transformation>
 </transformation>

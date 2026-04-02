@@ -2,7 +2,6 @@
 <transformation>
   <info>
     <name>TRF_04_INCIDENTS</name>
-    
     <description>Segment X → LCN_INCIDENTS. X06 et X12 en centimes ÷ 100. X09/X10/X11/X14 dates converties.</description>
     <extended_description/>
     <trans_version>1.0</trans_version>
@@ -21,28 +20,23 @@
     <database/>
     <port>-1</port>
     <username>lcn_user</username>
-    <password>lcn_pass_2026</password>
+    <password>Encrypted 2be98afa409c9ad94aa0abd4f8cc2fd8c</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
-      <attribute>
-        <code>CUSTOM_DRIVER_CLASS</code>
-        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
-      </attribute>
-      <attribute>
-        <code>CUSTOM_URL</code>
-        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
-      </attribute>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>oracle.jdbc.driver.OracleDriver</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute></attribute>
     </attributes>
   </connection>
-<order>
+  <order>
     <hop><from>LIRE_FICHIER_BRUT</from><to>FILTRER_SEGMENT_X</to><enabled>Y</enabled></hop>
     <hop><from>FILTRER_SEGMENT_X</from><to>EXTRAIRE_CHAMPS_X</to><enabled>Y</enabled></hop>
-    <hop><from>EXTRAIRE_CHAMPS_X</from><to>CONVERTIR_TYPES_X</to><enabled>Y</enabled></hop>
-    <hop><from>CONVERTIR_TYPES_X</from><to>CALCULER_MONTANTS</to><enabled>Y</enabled></hop>
-    <hop><from>CALCULER_MONTANTS</from><to>AJOUTER_LOT_DATE</to><enabled>Y</enabled></hop>
-    <hop><from>AJOUTER_LOT_DATE</from><to>CHARGER_LCN_INCIDENTS</to><enabled>Y</enabled></hop>
+    <hop><from>EXTRAIRE_CHAMPS_X</from><to>NETTOYER_ESPACES_X</to><enabled>Y</enabled></hop>
+    <hop><from>NETTOYER_ESPACES_X</from><to>VALIDER_DATES_ET_MONTANTS</to><enabled>Y</enabled></hop>
+    <hop><from>VALIDER_DATES_ET_MONTANTS</from><to>AJOUTER_LOT_DATE</to><enabled>Y</enabled></hop>
+    <hop><from>AJOUTER_LOT_DATE</from><to>CONVERTIR_TYPES_X</to><enabled>Y</enabled></hop>
+    <hop><from>CONVERTIR_TYPES_X</from><to>CHARGER_LCN_INCIDENTS</to><enabled>Y</enabled></hop>
   </order>
 
   <step>
@@ -52,9 +46,28 @@
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <accept_filenames>N</accept_filenames>
+    <passing_through_fields>N</passing_through_fields>
+    <accept_field/>
+    <accept_stepname/>
+    <separator>;</separator>
+    <enclosure/>
+    <enclosure_breaks>N</enclosure_breaks>
+    <escapechar/>
     <header>N</header>
     <nr_headerlines>0</nr_headerlines>
     <footer>N</footer>
+    <nr_footerlines>1</nr_footerlines>
+    <line_wrapped>N</line_wrapped>
+    <nr_wraps>1</nr_wraps>
+    <layout_paged>N</layout_paged>
+    <nr_lines_per_page>1</nr_lines_per_page>
+    <nr_lines_doc_header>1</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <rownumByFile>N</rownumByFile>
+    <rownum_field/>
     <format>DOS</format>
     <encoding>ISO-8859-1</encoding>
     <length>Characters</length>
@@ -62,17 +75,59 @@
     <file>
       <name>${FICHIER_ENTREE}</name>
       <filemask/>
+      <exclude_filemask/>
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
+      <type>CSV</type>
+      <compression>None</compression>
     </file>
+    <filters/>
     <fields>
       <field>
-        <name>LIGNE_RAW</name><type>String</type>
-        <position>1</position><length>250</length>
-        <precision>-1</precision><trim_type>none</trim_type><repeat>N</repeat>
+        <name>LIGNE_RAW</name>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <nullif/>
+        <ifnull/>
+        <position>1</position>
+        <length>500</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
       </field>
     </fields>
-    <GUI><xloc>80</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <limit>0</limit>
+    <error_ignored>N</error_ignored>
+    <skip_bad_files>N</skip_bad_files>
+    <file_error_field/>
+    <file_error_message_field/>
+    <error_line_skipped>N</error_line_skipped>
+    <error_count_field/>
+    <error_fields_field/>
+    <error_text_field/>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension/>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension/>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension/>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>fr_FR</date_format_locale>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>64</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step>
@@ -90,152 +145,267 @@
         <function>LIKE</function>
         <rightvalue/>
         <value><name>constant</name><type>String</type><text>X%</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value>
-        <operator>-</operator>
       </condition>
     </compare>
-    <GUI><xloc>240</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>208</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!--
-    STRUCTURE SEGMENT X (positionnel) :
-    Pos 1      : 'X'
-    Pos 2-4    : X02  CODE_BANQUE (3)
-    Pos 5-16   : X03  REF_IMPAYE (12)
-    Pos 17-17  : X04  TYPE_IMPAYE (1)
-    Pos 18-27  : X05  NUM_LCN (10)
-    Pos 28-42  : X06  MONTANT en centimes (15) → ÷ 100
-    Pos 43-45  : X07  DEVISE (3)
-    Pos 46-46  : X08  TYPE_SUPPORT (1)
-    Pos 47-54  : X09  DATE_EMISSION (8) → Date
-    Pos 55-62  : X10  DATE_ECHEANCE (8) → Date
-    Pos 63-70  : X11  DATE_CONSTAT (8) → Date
-    Pos 71-85  : X12  INSUFFISANCE en centimes (15) → ÷ 100
-    Pos 86-86  : X13  CODE_STATUT (1)
-    Pos 87-94  : X14  DATE_STATUT (8) → Date
-    Pos 95-110 : X15  REF_DOMICILIATAIRE (16)
-    Pos 111-134: X16  RIB (24)
-  -->
   <step>
     <name>EXTRAIRE_CHAMPS_X</name>
     <type>StringCut</type>
-    <description>Extraction positionnelle segment X</description>
+    <description>Extraction positionnelle segment X avec règle index - 1 selon spec BAM</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X02</out_stream_name><cut_from>2</cut_from><cut_to>4</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X03</out_stream_name><cut_from>5</cut_from><cut_to>16</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X04</out_stream_name><cut_from>17</cut_from><cut_to>17</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X05</out_stream_name><cut_from>18</cut_from><cut_to>27</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X06_CENTIMES_STR</out_stream_name><cut_from>28</cut_from><cut_to>42</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X07</out_stream_name><cut_from>43</cut_from><cut_to>45</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X08</out_stream_name><cut_from>46</cut_from><cut_to>46</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X09_STR</out_stream_name><cut_from>47</cut_from><cut_to>54</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X10_STR</out_stream_name><cut_from>55</cut_from><cut_to>62</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X11_STR</out_stream_name><cut_from>63</cut_from><cut_to>70</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X12_CENTIMES_STR</out_stream_name><cut_from>71</cut_from><cut_to>85</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X13</out_stream_name><cut_from>86</cut_from><cut_to>86</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X14_STR</out_stream_name><cut_from>87</cut_from><cut_to>94</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X15</out_stream_name><cut_from>95</cut_from><cut_to>110</cut_to></field>
-      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X16</out_stream_name><cut_from>111</cut_from><cut_to>134</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X02</out_stream_name><cut_from>1</cut_from><cut_to>4</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X03</out_stream_name><cut_from>4</cut_from><cut_to>16</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X04</out_stream_name><cut_from>16</cut_from><cut_to>17</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X05</out_stream_name><cut_from>17</cut_from><cut_to>27</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X06_CENTIMES_STR</out_stream_name><cut_from>27</cut_from><cut_to>47</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X07</out_stream_name><cut_from>47</cut_from><cut_to>50</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X08</out_stream_name><cut_from>50</cut_from><cut_to>51</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X09_STR</out_stream_name><cut_from>51</cut_from><cut_to>59</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X10_STR</out_stream_name><cut_from>59</cut_from><cut_to>67</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X11_STR</out_stream_name><cut_from>67</cut_from><cut_to>75</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X12_CENTIMES_STR</out_stream_name><cut_from>75</cut_from><cut_to>95</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X13</out_stream_name><cut_from>95</cut_from><cut_to>98</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X14_STR</out_stream_name><cut_from>98</cut_from><cut_to>106</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X15</out_stream_name><cut_from>106</cut_from><cut_to>122</cut_to></field>
+      <field><in_stream_name>LIGNE_RAW</in_stream_name><out_stream_name>X16</out_stream_name><cut_from>122</cut_from><cut_to>146</cut_to></field>
     </fields>
-    <GUI><xloc>400</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>352</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!-- Conversion types : montants String → Number et dates AAAAMMJJ → Date -->
   <step>
-    <name>CONVERTIR_TYPES_X</name>
-    <type>SelectValues</type>
-    <description>Conversion X06/X12 en Number et X09/X10/X11/X14 en Date</description>
+    <name>NETTOYER_ESPACES_X</name>
+    <type>StringOperations</type>
+    <description>Retire les espaces (Surtout pour X13 qui fait 3 char dans le TXT mais 1 dans Oracle)</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><name>X02</name></field>
-      <field><name>X03</name></field>
-      <field><name>X04</name></field>
-      <field><name>X05</name></field>
-      <field><name>X06_CENTIMES_STR</name><rename>X06_CENTIMES</rename></field>
-      <field><name>X07</name></field>
-      <field><name>X08</name></field>
-      <field><name>X09_STR</name><rename>X09</rename></field>
-      <field><name>X10_STR</name><rename>X10</rename></field>
-      <field><name>X11_STR</name><rename>X11</rename></field>
-      <field><name>X12_CENTIMES_STR</name><rename>X12_CENTIMES</rename></field>
-      <field><name>X13</name></field>
-      <field><name>X14_STR</name><rename>X14</rename></field>
-      <field><name>X15</name></field>
-      <field><name>X16</name></field>
+      <field><in_stream_name>X02</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>X03</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>X05</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>X13</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>X15</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
+      <field><in_stream_name>X16</in_stream_name><out_stream_name/><trim_type>both</trim_type><lower_upper>none</lower_upper><padding_type>none</padding_type><pad_char/><pad_len/><init_cap>no</init_cap><mask_xml>none</mask_xml><digits>none</digits><remove_special_characters>none</remove_special_characters></field>
     </fields>
-    <select_unspecified>N</select_unspecified>
-    <meta>
-      <field><name>X06_CENTIMES</name><type>Number</type><format>0</format><length>15</length><precision>0</precision></field>
-      <field><name>X09</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
-      <field><name>X10</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
-      <field><name>X11</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
-      <field><name>X12_CENTIMES</name><type>Number</type><format>0</format><length>15</length><precision>0</precision></field>
-      <field><name>X14</name><type>Date</type><format>yyyyMMdd</format><length>-1</length><precision>-1</precision></field>
-    </meta>
-    <GUI><xloc>560</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>512</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
-  <!-- Division par 100 : centimes → dirhams -->
   <step>
-    <name>CALCULER_MONTANTS</name>
-    <type>Calculator</type>
-    <description>X06 = X06_CENTIMES / 100 et X12 = X12_CENTIMES / 100</description>
+    <name>VALIDER_DATES_ET_MONTANTS</name>
+    <type>ScriptValueMod</type>
+    <description>Validation des dates vides et division par 100 des montants</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
-    <calculation>
-      <calc_type>DIVIDE</calc_type>
-      <field_name>X06</field_name>
-      <field_A>X06_CENTIMES</field_A>
-      <field_B>100</field_B>
-      <field_C/>
-      <value_type>Number</value_type>
-      <value_length>15</value_length>
-      <value_precision>2</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-    </calculation>
-    <calculation>
-      <calc_type>DIVIDE</calc_type>
-      <field_name>X12</field_name>
-      <field_A>X12_CENTIMES</field_A>
-      <field_B>100</field_B>
-      <field_C/>
-      <value_type>Number</value_type>
-      <value_length>15</value_length>
-      <value_precision>2</value_precision>
-      <remove>N</remove>
-      <conversion_mask/>
-    </calculation>
-    <GUI><xloc>720</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>VALIDER_DATES</jsScript_name>
+        <jsScript_script>
+// Fonction pour valider et nettoyer les dates (certaines peuvent etre vides en BAM)
+function validerDate(d_str) {
+  if (d_str != null &amp;&amp; d_str.trim().length == 8 &amp;&amp; d_str.trim().match(/^[0-9]{8}$/)) {
+    var annee = parseInt(d_str.substring(0, 4), 10);
+    var mois  = parseInt(d_str.substring(4, 6), 10);
+    var jour  = parseInt(d_str.substring(6, 8), 10);
+    if (annee &lt; 1900 || mois &lt; 1 || mois > 12 || jour &lt; 1 || jour > 31) {
+      return null;
+    }
+    return d_str.trim();
+  }
+  return null;
+}
+
+X09_STR = validerDate(X09_STR);
+X10_STR = validerDate(X10_STR);
+X11_STR = validerDate(X11_STR);
+X14_STR = validerDate(X14_STR);
+
+// Transformation des montants (Division par 100)
+var X06 = null;
+if (X06_CENTIMES_STR != null &amp;&amp; X06_CENTIMES_STR.trim().length > 0) {
+  X06 = parseFloat(X06_CENTIMES_STR.trim()) / 100;
+}
+
+var X12 = null;
+if (X12_CENTIMES_STR != null &amp;&amp; X12_CENTIMES_STR.trim().length > 0) {
+  X12 = parseFloat(X12_CENTIMES_STR.trim()) / 100;
+}
+        </jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field><name>X09_STR</name><rename>X09_STR</rename><type>String</type><length>-1</length><precision>-1</precision><replace>Y</replace></field>
+      <field><name>X10_STR</name><rename>X10_STR</rename><type>String</type><length>-1</length><precision>-1</precision><replace>Y</replace></field>
+      <field><name>X11_STR</name><rename>X11_STR</rename><type>String</type><length>-1</length><precision>-1</precision><replace>Y</replace></field>
+      <field><name>X14_STR</name><rename>X14_STR</rename><type>String</type><length>-1</length><precision>-1</precision><replace>Y</replace></field>
+      <field><name>X06</name><rename>X06</rename><type>Number</type><length>15</length><precision>2</precision><replace>N</replace></field>
+      <field><name>X12</name><rename>X12</rename><type>Number</type><length>15</length><precision>2</precision><replace>N</replace></field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>704</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step>
     <name>AJOUTER_LOT_DATE</name>
-    <type>AddConstants</type>
+    <type>GetVariable</type>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <fields>
-      <field><name>LOT</name><type>String</type><value>${LOT_VAL}</value></field>
-      <field><name>DATE_ARRETE_STR</name><type>String</type><value>${DATE_ARRETE_VAL}</value></field>
+      <field><name>LOT</name><variable>${LOT_VAL}</variable><type>String</type><format/><currency/><decimal/><group/><length>-1</length><precision>-1</precision><trim_type>none</trim_type></field>
+      <field><name>DATE_ARRETE_STR</name><variable>${DATE_ARRETE_VAL}</variable><type>String</type><format/><currency/><decimal/><group/><length>-1</length><precision>-1</precision><trim_type>none</trim_type></field>
     </fields>
-    <GUI><xloc>880</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>896</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+  </step>
+
+  <step>
+    <name>CONVERTIR_TYPES_X</name>
+    <type>SelectValues</type>
+    <description>Mappage des Date et passage des montants</description>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <fields>
+      <field><name>X02</name><rename/></field>
+      <field><name>X03</name><rename/></field>
+      <field><name>X04</name><rename/></field>
+      <field><name>X05</name><rename/></field>
+      <field><name>X06</name><rename/></field>
+      <field><name>X07</name><rename/></field>
+      <field><name>X08</name><rename/></field>
+      <field><name>X09_STR</name><rename>X09</rename></field>
+      <field><name>X10_STR</name><rename>X10</rename></field>
+      <field><name>X11_STR</name><rename>X11</rename></field>
+      <field><name>X12</name><rename/></field>
+      <field><name>X13</name><rename/></field>
+      <field><name>X14_STR</name><rename>X14</rename></field>
+      <field><name>X15</name><rename/></field>
+      <field><name>X16</name><rename/></field>
+      <field><name>LOT</name><rename/></field>
+      <field><name>DATE_ARRETE_STR</name><rename>DATE_ARRETE</rename></field>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>X09</name>
+        <rename>X09</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>X10</name>
+        <rename>X10</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>X11</name>
+        <rename>X11</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>X14</name>
+        <rename>X14</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+      <meta>
+        <name>DATE_ARRETE</name>
+        <rename>DATE_ARRETE</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>1072</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step>
     <name>CHARGER_LCN_INCIDENTS</name>
     <type>InsertUpdate</type>
-    <description>Insert/Update vers LCN_INCIDENTS, clé = X03 (REF_IMPAYE)</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <connection>ORACLE_LCN</connection>
-<commit>500</commit>
+    <commit>500</commit>
     <update_bypassed>N</update_bypassed>
     <lookup>
       <schema>LCN_USER</schema>
@@ -257,9 +427,15 @@
       <value><name>X15</name><rename>X15</rename><update>Y</update></value>
       <value><name>X16</name><rename>X16</rename><update>Y</update></value>
       <value><name>LOT</name><rename>LOT</rename><update>Y</update></value>
+      <value><name>DATE_ARRETE</name><rename>DATE_ARRETE</rename><update>Y</update></value>
     </lookup>
-    <GUI><xloc>1040</xloc><yloc>160</yloc><draw>Y</draw></GUI>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps><input/><output/></remotesteps>
+    <GUI><xloc>1264</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step_error_handling/>
+  <slave-step-copy-partition-distribution/>
+  <slave_transformation>N</slave_transformation>
 </transformation>

@@ -2,7 +2,6 @@
 <transformation>
   <info>
     <name>TRF_00_CHECK_DOUBLON</name>
-    
     <description>Vérifie si NOM_FICHIER est déjà dans LCN_ENTETE. Positionne DOUBLON_COUNT.</description>
     <extended_description/>
     <trans_version>1.0</trans_version>
@@ -23,22 +22,16 @@
     <database/>
     <port>-1</port>
     <username>lcn_user</username>
-    <password>lcn_pass_2026</password>
+    <password>Encrypted 2be98afa409c9ad94aa0abd4f8cc2fd8c</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
     <attributes>
-      <attribute>
-        <code>CUSTOM_DRIVER_CLASS</code>
-        <attribute>oracle.jdbc.driver.OracleDriver</attribute>
-      </attribute>
-      <attribute>
-        <code>CUSTOM_URL</code>
-        <attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute>
-      </attribute>
+      <attribute><code>CUSTOM_DRIVER_CLASS</code><attribute>oracle.jdbc.driver.OracleDriver</attribute></attribute>
+      <attribute><code>CUSTOM_URL</code><attribute>jdbc:oracle:thin:@//localhost:1521/xepdb1</attribute></attribute>
     </attributes>
   </connection>
-<order>
+  <order>
     <hop><from>COMPTER_FICHIER_EXISTANT</from><to>POSITIONNER_VARIABLE</to><enabled>Y</enabled></hop>
     <hop><from>POSITIONNER_VARIABLE</from><to>FILTRE_DOUBLON</to><enabled>Y</enabled></hop>
     <hop><from>FILTRE_DOUBLON</from><to>LOG_DOUBLON_DETECTE</to><enabled>Y</enabled></hop>
@@ -52,11 +45,11 @@
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
     <connection>ORACLE_LCN</connection>
-<sql><![CDATA[
+    <sql>
 SELECT COUNT(*) AS DOUBLON_COUNT
 FROM LCN_USER.LCN_ENTETE
 WHERE NOM_FICHIER = '${NOM_FICHIER}'
-    ]]></sql>
+    </sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -68,7 +61,7 @@ WHERE NOM_FICHIER = '${NOM_FICHIER}'
   <step>
     <name>POSITIONNER_VARIABLE</name>
     <type>SetVariable</type>
-    <description>Exporte DOUBLON_COUNT comme variable du job parent</description>
+    <description>Exporte DOUBLON_COUNT comme variable globale (JVM)</description>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning><method>none</method><schema_name/></partitioning>
@@ -76,7 +69,7 @@ WHERE NOM_FICHIER = '${NOM_FICHIER}'
       <field>
         <field_name>DOUBLON_COUNT</field_name>
         <variable_name>DOUBLON_COUNT</variable_name>
-        <variable_type>PARENT_JOB</variable_type>
+        <variable_type>JVM</variable_type>
         <default_value>0</default_value>
       </field>
     </fields>
@@ -108,7 +101,6 @@ WHERE NOM_FICHIER = '${NOM_FICHIER}'
           <isnull>N</isnull>
           <mask/>
         </value>
-        <operator>-</operator>
       </condition>
     </compare>
     <GUI><xloc>480</xloc><yloc>160</yloc><draw>Y</draw></GUI>
@@ -125,10 +117,12 @@ WHERE NOM_FICHIER = '${NOM_FICHIER}'
     <displayHeader>Y</displayHeader>
     <logmessage>DOUBLON : Le fichier ${NOM_FICHIER} est déjà dans LCN_ENTETE. Chargement ignoré.</logmessage>
     <fields>
-      <field><fieldname>DOUBLON_COUNT</fieldname></field>
+      <field><name>DOUBLON_COUNT</name></field>
     </fields>
     <GUI><xloc>680</xloc><yloc>160</yloc><draw>Y</draw></GUI>
   </step>
 
   <step_error_handling/>
+  <slave-step-copy-partition-distribution/>
+  <slave_transformation>N</slave_transformation>
 </transformation>
