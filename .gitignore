@@ -1,20 +1,40 @@
+# --- SECURITE ---
+# Ne jamais versionner les secrets
 .env
-data/
+.env.*
 
-# Python
+# --- DONNEES & TEMP ---
+# Ignorer les fichiers de données brutes (LCN, CSV, etc.)
+data/
+*.csv
+*.txt
+*.dat
+
+# --- DOCKER ---
+# Ignorer les données persistantes des volumes locaux
+oracle_data/
+postgres_data/
+
+# --- PYTHON ---
 __pycache__/
 *.py[cod]
 *.pyo
 .venv/
 venv/
 *.egg-info/
+.pytest_cache/
 
+# --- IDE & EDITEURS ---
 # PyCharm
 .idea/
+# VS Code
+.vscode/
 
-# Logs Airflow
-logs/
+# --- PENTAHO (PDI) ---
+# Fichiers de log ou de lock temporaires de Spoon
+*.log
+*.lck
 
-# OS
+# --- OS ---
 .DS_Store
 Thumbs.db

@@ -1,50 +1,13 @@
-version: '3.8'
-
-x-airflow-common: &airflow-common
-  build: .
-  environment: &airflow-common-env
-    AIRFLOW__CORE__EXECUTOR: LocalExecutor
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__WEBSERVER__SECRET_KEY: 'lcn-cfg-bank-secret-2026'
-    AIRFLOW_CONN_ORACLE_LCN: 'oracle://lcn_user:lcn_pass_2026@oracle-xe:1521/xepdb1'
-    ORACLE_HOST: oracle-xe
-    ORACLE_PORT: '1521'
-    ORACLE_SERVICE: xepdb1
-    ORACLE_USER: lcn_user
-    ORACLE_PASSWORD: lcn_pass_2026
-  volumes:
-    - ./dags:/opt/airflow/dags
-    - ./logs:/opt/airflow/logs
-    - ./plugins:/opt/airflow/plugins
-    - ./data:/opt/airflow/data
-    - ./scripts:/opt/airflow/scripts
-  depends_on:
-    postgres:
-      condition: service_healthy
-
 services:
-
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: airflow
-      POSTGRES_DB: airflow
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 10s
-      retries: 5
 
   oracle-xe:
     image: gvenzl/oracle-xe:21-slim-faststart
+    container_name: oracle_lcn_db
     ports:
-      - "1521:1521"
+      - "${ORACLE_PORT}:1521"
       - "5501:5500"
     environment:
-      ORACLE_PASSWORD: LCN_Admin_2026
+      - ORACLE_PASSWORD=${ORACLE_ADMIN_PASSWORD}
     volumes:
       - oracle_data:/opt/oracle/oradata
     healthcheck:
@@ -54,31 +17,5 @@ services:
       retries: 10
       start_period: 120s
 
-  airflow-init:
-    <<: *airflow-common
-    command: version
-    environment:
-      <<: *airflow-common-env
-      _AIRFLOW_DB_MIGRATE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
-      _AIRFLOW_WWW_USER_USERNAME: admin
-      _AIRFLOW_WWW_USER_PASSWORD: admin123
-      _AIRFLOW_WWW_USER_FIRSTNAME: Salma
-      _AIRFLOW_WWW_USER_LASTNAME: CFG
-      _AIRFLOW_WWW_USER_EMAIL: salma@cfg.ma
-
-  airflow-webserver:
-    <<: *airflow-common
-    command: webserver
-    ports:
-      - "8080:8080"
-    restart: always
-
-  airflow-scheduler:
-    <<: *airflow-common
-    command: scheduler
-    restart: always
-
 volumes:
-  postgres_data:
   oracle_data:

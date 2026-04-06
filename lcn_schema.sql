@@ -144,20 +144,142 @@ ALTER TABLE lcn_user.LCN_INCIDENTS
 
 DROP TABLE lcn_user.LCN_SYNTH CASCADE CONSTRAINTS;
 
-CREATE TABLE lcn_user.LCN_SYNTH
+WHENEVER SQLERROR CONTINUE
+
+CREATE TABLE LCN_ENTETE
+(
+  H02          VARCHAR2(3   BYTE),
+  H03          DATE,
+  H04          DATE,
+  H05          VARCHAR2(3   BYTE),
+  H06          VARCHAR2(4   BYTE),
+  NOM_FICHIER  VARCHAR2(100 BYTE),
+  DATE_CHARGE  DATE DEFAULT SYSDATE
+)
+LOGGING NOCOMPRESS NOCACHE;
+
+CREATE TABLE LCN_CLIENTS_PP
+(
+  B02          VARCHAR2(12  BYTE),
+  B03          VARCHAR2(1   BYTE),
+  B04          VARCHAR2(1   BYTE),
+  B05          VARCHAR2(1   BYTE),
+  B06          VARCHAR2(20  BYTE),
+  B07          VARCHAR2(2   BYTE),
+  B08          VARCHAR2(50  BYTE),
+  B09          VARCHAR2(50  BYTE),
+  B10          VARCHAR2(1   BYTE),
+  B11          DATE,
+  B12          VARCHAR2(3   BYTE),
+  B13          VARCHAR2(2   BYTE),
+  B14          VARCHAR2(3   BYTE),
+  B15          VARCHAR2(20  BYTE),
+  B16          VARCHAR2(20  BYTE),
+  B18          VARCHAR2(120 BYTE),
+  B19          DATE,
+  B20          VARCHAR2(50  BYTE),
+  B21          VARCHAR2(50  BYTE),
+  B22          VARCHAR2(50  BYTE),
+  B23          VARCHAR2(50  BYTE),
+  B24          VARCHAR2(30  BYTE),
+  B25          VARCHAR2(3   BYTE),
+  B26          VARCHAR2(5   BYTE),
+  B27          VARCHAR2(2   BYTE),
+  LOT          VARCHAR2(3   BYTE),
+  DATE_ARRETE  DATE
+)
+LOGGING NOCOMPRESS NOCACHE;
+
+CREATE TABLE LCN_CLIENTS_PM
+(
+  T02          VARCHAR2(12  BYTE),
+  T03          VARCHAR2(1   BYTE),
+  T04          VARCHAR2(3   BYTE),
+  T05          VARCHAR2(20  BYTE),
+  T06          VARCHAR2(20  BYTE),
+  T08          VARCHAR2(20  BYTE),
+  T09          VARCHAR2(20  BYTE),
+  T10          VARCHAR2(120 BYTE),
+  T11          DATE,
+  T12          VARCHAR2(2   BYTE),
+  T13          VARCHAR2(50  BYTE),
+  T14          VARCHAR2(50  BYTE),
+  T15          VARCHAR2(50  BYTE),
+  T16          VARCHAR2(50  BYTE),
+  T17          VARCHAR2(50  BYTE),
+  T18          VARCHAR2(44  BYTE),
+  T19          VARCHAR2(3   BYTE),
+  T20          VARCHAR2(5   BYTE),
+  T21          VARCHAR2(2   BYTE),
+  T22          VARCHAR2(1   BYTE),
+  T23          VARCHAR2(120 BYTE),
+  T24          VARCHAR2(1   BYTE),
+  T25          VARCHAR2(23  BYTE),
+  LOT          VARCHAR2(3   BYTE),
+  DATE_ARRETE  DATE
+)
+LOGGING NOCOMPRESS NOCACHE;
+
+CREATE TABLE LCN_INCIDENTS
+(
+  X02          VARCHAR2(3    BYTE),
+  X03          VARCHAR2(12   BYTE),
+  X04          VARCHAR2(1    BYTE),
+  X05          VARCHAR2(10   BYTE),
+  X06          NUMBER(15, 2),
+  X07          VARCHAR2(3    BYTE),
+  X08          VARCHAR2(1    BYTE),
+  X09          DATE,
+  X10          DATE,
+  X11          DATE,
+  X12          NUMBER(15, 2),
+  X13          VARCHAR2(1    BYTE),
+  X14          DATE,
+  X15          VARCHAR2(16   BYTE),
+  X16          VARCHAR2(24   BYTE),
+  LOT          VARCHAR2(3    BYTE),
+  DATE_ARRETE  DATE
+)
+LOGGING NOCOMPRESS NOCACHE;
+
+CREATE TABLE LCN_LIENS
+(
+  U02          VARCHAR2(12  BYTE),
+  U03          VARCHAR2(12  BYTE),
+  LOT          VARCHAR2(3   BYTE),
+  DATE_ARRETE  DATE
+)
+LOGGING NOCOMPRESS NOCACHE;
+
+CREATE TABLE LCN_REF_STATUT
+(
+  CODE         VARCHAR2(1   BYTE),
+  LIBELLE      VARCHAR2(20  BYTE),
+  DESCRIPTION  VARCHAR2(200 BYTE)
+)
+LOGGING NOCOMPRESS NOCACHE;
+
+ALTER TABLE LCN_REF_STATUT ADD CONSTRAINT pk_ref_statut PRIMARY KEY (CODE);
+
+INSERT INTO LCN_REF_STATUT VALUES ('0', 'Impayé',     'Incident LCN constaté, non encore régularisé ni annulé');
+INSERT INTO LCN_REF_STATUT VALUES ('1', 'Régularisé', 'Incident LCN régularisé par règlement total du montant dû');
+INSERT INTO LCN_REF_STATUT VALUES ('2', 'Annulé',     'Incident LCN annulé par la banque déclarante');
+
+ALTER TABLE LCN_INCIDENTS
+  ADD CONSTRAINT fk_incidents_statut
+  FOREIGN KEY (X13) REFERENCES LCN_REF_STATUT(CODE);
+
+CREATE TABLE LCN_SYNTH
 (
   REF_CLIENT      VARCHAR2(12  BYTE),
   REF_IMPAYE      VARCHAR2(12  BYTE),
   TYPE_CLIENT     VARCHAR2(2   BYTE),
-
   NOM             VARCHAR2(50  BYTE),
   PRENOM          VARCHAR2(50  BYTE),
   CIN             VARCHAR2(20  BYTE),
   DATE_NAISSANCE  DATE,
-
   RAISON_SOCIALE  VARCHAR2(120 BYTE),
   RC              VARCHAR2(20  BYTE),
-
   CODE_BANQUE     VARCHAR2(3   BYTE),
   NUM_LCN         VARCHAR2(10  BYTE),
   MONTANT         NUMBER(15,2),
@@ -175,7 +297,6 @@ CREATE TABLE lcn_user.LCN_SYNTH
   DATE_CHARGE     DATE DEFAULT SYSDATE
 )
 LOGGING NOCOMPRESS NOCACHE;
-
 
 
 CREATE INDEX idx_synth_ref_client ON lcn_user.LCN_SYNTH(REF_CLIENT);
