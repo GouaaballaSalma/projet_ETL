@@ -6,11 +6,12 @@
     <extended_description/>
     <trans_version>1.0</trans_version>
     <trans_type>Normal</trans_type>
+    <trans_status>0</trans_status>
     <directory>/</directory>
     <parameters>
       <parameter>
         <name>DATE_ARRETE_VAL</name>
-        <default_value>20260305</default_value>
+        <default_value>20260406</default_value>
         <description>Date arrêtée format AAAAMMJJ</description>
       </parameter>
       <parameter>
@@ -529,18 +530,6 @@
         <condition>=</condition>
         <name2/>
       </key>
-      <key>
-        <name>REF_CLIENT</name>
-        <field>REF_CLIENT</field>
-        <condition>=</condition>
-        <name2/>
-      </key>
-      <key>
-        <name>LOT</name>
-        <field>LOT</field>
-        <condition>=</condition>
-        <name2/>
-      </key>
       <value>
         <name>REF_CLIENT</name>
         <rename>REF_CLIENT</rename>
@@ -567,8 +556,8 @@
         <update>Y</update>
       </value>
       <value>
-        <name>CIN</name>
-        <rename>CIN</rename>
+        <name>IDENTIFIANT_PRINCIPAL</name>
+        <rename>IDENTIFIANT_PRINCIPAL</rename>
         <update>Y</update>
       </value>
       <value>
@@ -649,7 +638,7 @@
       <value>
         <name>LOT</name>
         <rename>LOT</rename>
-        <update>N</update>
+        <update>Y</update>
       </value>
       <value>
         <name>DATE_ARRETE</name>
@@ -659,6 +648,16 @@
       <value>
         <name>DATE_CHARGE</name>
         <rename>DATE_CHARGE</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>TYPE_IDENTIFIANT</name>
+        <rename>TYPE_IDENTIFIANT</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>IDENTIFIANT_FISCAL</name>
+        <rename>IDENTIFIANT_FISCAL</rename>
         <update>Y</update>
       </value>
     </lookup>
@@ -688,8 +687,7 @@
       <schema_name/>
     </partitioning>
     <connection>ORACLE_LCN</connection>
-    <sql>
-SELECT
+    <sql>SELECT
     NVL(TRIM(u.U02), TRIM(x.X03))   AS REF_CLIENT,
     TRIM(x.X03)                     AS REF_IMPAYE,
     CASE
@@ -699,10 +697,12 @@ SELECT
     END                             AS TYPE_CLIENT,
     TRIM(pp.B08)                    AS NOM,
     TRIM(pp.B09)                    AS PRENOM,
-    TRIM(pp.B06)                    AS CIN,
+    TRIM(pp.B05)                    AS TYPE_IDENTIFIANT,
+    TRIM(pp.B06)                    AS IDENTIFIANT_PRINCIPAL,
     pp.B11                          AS DATE_NAISSANCE,
     TRIM(pm.T10)                    AS RAISON_SOCIALE,
     COALESCE(TRIM(pm.T05), TRIM(pp.B15)) AS RC,
+	COALESCE(TRIM(pm.T06), TRIM(pp.B16)) AS IDENTIFIANT_FISCAL,
     TRIM(x.X02)                     AS CODE_BANQUE,
     TRIM(x.X05)                     AS NUM_LCN,
     x.X06                           AS MONTANT,
@@ -727,8 +727,7 @@ LEFT JOIN LCN_USER.LCN_CLIENTS_PM pm
     ON (TRIM(pm.T02) = TRIM(u.U02) AND pm.LOT = x.LOT)
 LEFT JOIN LCN_USER.LCN_REF_STATUT rs
     ON (rs.CODE = TRIM(x.X13))
-WHERE x.LOT = '${LOT_VAL}'
-    </sql>
+WHERE x.LOT = '${LOT_VAL}'</sql>
     <limit>0</limit>
     <lookup/>
     <execute_each_row>N</execute_each_row>
@@ -854,11 +853,34 @@ WHERE x.LOT = '${LOT_VAL}'
       <value-meta>
         <type>String</type>
         <storagetype>normal</storagetype>
-        <name>CIN</name>
+        <name>TYPE_IDENTIFIANT</name>
+        <length>1</length>
+        <precision>-1</precision>
+        <origin>LIRE_SYNTH_SQL</origin>
+        <comments>TYPE_IDENTIFIANT</comments>
+        <conversion_Mask/>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol> </grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>fr_FR</date_format_locale>
+        <date_format_timezone>Africa/Casablanca</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>String</type>
+        <storagetype>normal</storagetype>
+        <name>IDENTIFIANT_PRINCIPAL</name>
         <length>20</length>
         <precision>-1</precision>
         <origin>LIRE_SYNTH_SQL</origin>
-        <comments>CIN</comments>
+        <comments>IDENTIFIANT_PRINCIPAL</comments>
         <conversion_Mask/>
         <decimal_symbol>,</decimal_symbol>
         <grouping_symbol> </grouping_symbol>
@@ -928,6 +950,29 @@ WHERE x.LOT = '${LOT_VAL}'
         <precision>-1</precision>
         <origin>LIRE_SYNTH_SQL</origin>
         <comments>RC</comments>
+        <conversion_Mask/>
+        <decimal_symbol>,</decimal_symbol>
+        <grouping_symbol> </grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>fr_FR</date_format_locale>
+        <date_format_timezone>Africa/Casablanca</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>String</type>
+        <storagetype>normal</storagetype>
+        <name>IDENTIFIANT_FISCAL</name>
+        <length>20</length>
+        <precision>-1</precision>
+        <origin>LIRE_SYNTH_SQL</origin>
+        <comments>IDENTIFIANT_FISCAL</comments>
         <conversion_Mask/>
         <decimal_symbol>,</decimal_symbol>
         <grouping_symbol> </grouping_symbol>

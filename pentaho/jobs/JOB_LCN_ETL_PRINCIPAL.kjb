@@ -18,12 +18,12 @@
     </parameter>
     <parameter>
       <name>DATE_ARRETE_VAL</name>
-      <default_value>20260305</default_value>
+      <default_value>20260406</default_value>
       <description/>
     </parameter>
     <parameter>
       <name>FICHIER_ENTREE</name>
-      <default_value>C:/Users/hp/PycharmProjects/plateforme-lcn-etl-cfgv1/data/CIL_DFF_001_050_20260305_001</default_value>
+      <default_value>C:\Users\hp\PycharmProjects\plateforme-lcn-etl-cfgv1\data\CIL_DFF_001_050_20260305_001</default_value>
       <description/>
     </parameter>
     <parameter>
@@ -392,6 +392,16 @@
       <suppress_result_data>N</suppress_result_data>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>FICHIER_ENTREE</name>
+          <stream_name/>
+          <value>${FICHIER_ENTREE}</value>
+        </parameter>
+        <parameter>
+          <name>NOM_FICHIER</name>
+          <stream_name/>
+          <value>${NOM_FICHIER}</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
       <draw>Y</draw>
@@ -431,6 +441,21 @@
       <suppress_result_data>N</suppress_result_data>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>DATE_ARRETE_VAL</name>
+          <stream_name/>
+          <value>${DATE_ARRETE_VAL}</value>
+        </parameter>
+        <parameter>
+          <name>FICHIER_ENTREE</name>
+          <stream_name/>
+          <value>${FICHIER_ENTREE}</value>
+        </parameter>
+        <parameter>
+          <name>LOT_VAL</name>
+          <stream_name/>
+          <value>${LOT_VAL}</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
       <draw>Y</draw>
@@ -470,6 +495,21 @@
       <suppress_result_data>N</suppress_result_data>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>DATE_ARRETE_VAL</name>
+          <stream_name/>
+          <value>${DATE_ARRETE_VAL}</value>
+        </parameter>
+        <parameter>
+          <name>FICHIER_ENTREE</name>
+          <stream_name/>
+          <value>${FICHIER_ENTREE}</value>
+        </parameter>
+        <parameter>
+          <name>LOT_VAL</name>
+          <stream_name/>
+          <value>${LOT_VAL}</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
       <draw>Y</draw>
@@ -509,6 +549,21 @@
       <suppress_result_data>N</suppress_result_data>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>DATE_ARRETE_VAL</name>
+          <stream_name/>
+          <value>${DATE_ARRETE_VAL}</value>
+        </parameter>
+        <parameter>
+          <name>FICHIER_ENTREE</name>
+          <stream_name/>
+          <value>${FICHIER_ENTREE}</value>
+        </parameter>
+        <parameter>
+          <name>LOT_VAL</name>
+          <stream_name/>
+          <value>${LOT_VAL}</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
       <draw>Y</draw>
@@ -548,6 +603,21 @@
       <suppress_result_data>N</suppress_result_data>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>DATE_ARRETE_VAL</name>
+          <stream_name/>
+          <value>${DATE_ARRETE_VAL}</value>
+        </parameter>
+        <parameter>
+          <name>FICHIER_ENTREE</name>
+          <stream_name/>
+          <value>${FICHIER_ENTREE}</value>
+        </parameter>
+        <parameter>
+          <name>LOT_VAL</name>
+          <stream_name/>
+          <value>${LOT_VAL}</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
       <draw>Y</draw>
@@ -587,6 +657,16 @@
       <suppress_result_data>N</suppress_result_data>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>DATE_ARRETE_VAL</name>
+          <stream_name/>
+          <value>${DATE_ARRETE_VAL}</value>
+        </parameter>
+        <parameter>
+          <name>LOT_VAL</name>
+          <stream_name/>
+          <value>${LOT_VAL}</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
       <draw>Y</draw>

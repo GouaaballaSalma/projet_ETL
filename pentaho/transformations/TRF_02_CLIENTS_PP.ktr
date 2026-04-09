@@ -775,7 +775,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1072</xloc>
+      <xloc>1120</xloc>
       <yloc>96</yloc>
       <draw>Y</draw>
     </GUI>
@@ -794,30 +794,39 @@
     <fields>
       <field>
         <name>B02</name>
+        <rename/>
       </field>
       <field>
         <name>B03</name>
+        <rename/>
       </field>
       <field>
         <name>B04</name>
+        <rename/>
       </field>
       <field>
         <name>B05</name>
+        <rename/>
       </field>
       <field>
         <name>B06</name>
+        <rename/>
       </field>
       <field>
         <name>B07</name>
+        <rename/>
       </field>
       <field>
         <name>B08</name>
+        <rename/>
       </field>
       <field>
         <name>B09</name>
+        <rename/>
       </field>
       <field>
         <name>B10</name>
+        <rename/>
       </field>
       <field>
         <name>B11_STR</name>
@@ -825,21 +834,27 @@
       </field>
       <field>
         <name>B12</name>
+        <rename/>
       </field>
       <field>
         <name>B13</name>
+        <rename/>
       </field>
       <field>
         <name>B14</name>
+        <rename/>
       </field>
       <field>
         <name>B15</name>
+        <rename/>
       </field>
       <field>
         <name>B16</name>
+        <rename/>
       </field>
       <field>
         <name>B18</name>
+        <rename/>
       </field>
       <field>
         <name>B19_STR</name>
@@ -847,38 +862,48 @@
       </field>
       <field>
         <name>B20</name>
+        <rename/>
       </field>
       <field>
         <name>B21</name>
+        <rename/>
       </field>
       <field>
         <name>B22</name>
+        <rename/>
       </field>
       <field>
         <name>B23</name>
+        <rename/>
       </field>
       <field>
         <name>B24</name>
+        <rename/>
       </field>
       <field>
         <name>B25</name>
+        <rename/>
       </field>
       <field>
         <name>B26</name>
+        <rename/>
       </field>
       <field>
         <name>B27</name>
+        <rename/>
       </field>
       <field>
         <name>LOT</name>
+        <rename/>
       </field>
       <field>
         <name>DATE_ARRETE</name>
+        <rename/>
       </field>
       <select_unspecified>N</select_unspecified>
       <meta>
         <name>B11</name>
-        <rename/>
+        <rename>B11</rename>
         <type>Date</type>
         <length>-2</length>
         <precision>-2</precision>
@@ -895,7 +920,7 @@
       </meta>
       <meta>
         <name>B19</name>
-        <rename/>
+        <rename>B19</rename>
         <type>Date</type>
         <length>-2</length>
         <precision>-2</precision>
@@ -912,7 +937,7 @@
       </meta>
       <meta>
         <name>DATE_ARRETE</name>
-        <rename/>
+        <rename>DATE_ARRETE</rename>
         <type>Date</type>
         <length>-2</length>
         <precision>-2</precision>
