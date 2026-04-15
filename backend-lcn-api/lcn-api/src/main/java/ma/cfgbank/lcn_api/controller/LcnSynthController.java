@@ -16,6 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 
 @RestController
@@ -37,13 +42,19 @@ public class LcnSynthController {
             @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
     @GetMapping("/recherche")
-    public ResponseEntity<List<LcnSynthDTO>> rechercherIncidents(
+    public ResponseEntity<Page<LcnSynthDTO>> rechercherIncidents(
             @RequestParam TypeClient typeClient,
-            @RequestParam String identifiant,
+            @RequestParam(required = false) String identifiant,
+            @RequestParam(required = false) String nomComplet,
             @RequestParam(required = false) TypeIdentifiantPM typeIdentifiantPM,
-            @RequestParam(required = false) TypeIdentifiantPP typeIdentifiantPP) {
+            @RequestParam(required = false) TypeIdentifiantPP typeIdentifiantPP,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
             
-        List<LcnSynthDTO> results = service.rechercherIncidents(typeClient, identifiant, typeIdentifiantPM, typeIdentifiantPP);
+        if (size > 50) size = 50;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateEmission"));
+            
+        Page<LcnSynthDTO> results = service.rechercherIncidents(typeClient, identifiant, nomComplet, typeIdentifiantPM, typeIdentifiantPP, pageable);
         return ResponseEntity.ok(results);
     }
 

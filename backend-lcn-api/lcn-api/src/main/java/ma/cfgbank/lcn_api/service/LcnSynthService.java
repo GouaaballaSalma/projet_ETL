@@ -14,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,17 +34,27 @@ public class LcnSynthService {
         this.mapper = mapper;
     }
 
-    public List<LcnSynthDTO> rechercherIncidents(TypeClient typeClient, String identifiant, TypeIdentifiantPM typeIdentifiantPM, TypeIdentifiantPP typeIdentifiantPP) {
-        List<LcnSynth> results;
+    public Page<LcnSynthDTO> rechercherIncidents(TypeClient typeClient, String identifiant, String nomComplet, TypeIdentifiantPM typeIdentifiantPM, TypeIdentifiantPP typeIdentifiantPP, Pageable pageable) {
+        Page<LcnSynth> results;
         
         if (typeClient == TypeClient.PP) {
-            if (typeIdentifiantPP == null) {
-                throw new LcnBusinessException("Le type d'identifiant PP (CIN, PASSEPORT ou SEJOUR) est obligatoire pour les Personnes Physiques (PP)");
+            boolean hasIdentifiant = identifiant != null && !identifiant.trim().isEmpty();
+            boolean hasNomComplet = nomComplet != null && !nomComplet.trim().isEmpty();
+
+            if (!hasIdentifiant && !hasNomComplet) {
+                throw new LcnBusinessException("L'identifiant ou le nom complet (au moins un des deux) est obligatoire pour les Personnes Physiques (PP)");
             }
-            if (identifiant == null || identifiant.trim().isEmpty()) {
-                throw new LcnBusinessException("L'identifiant est obligatoire pour les Personnes Physiques (PP)");
+            if (hasIdentifiant && typeIdentifiantPP == null) {
+                throw new LcnBusinessException("Le type d'identifiant PP (CIN, PASSEPORT ou SEJOUR) est obligatoire si l'identifiant est fourni");
             }
-            results = repository.findByTypeClientAndIdentifiantPrincipal(typeClient.name(), identifiant);
+            
+            if (hasIdentifiant && hasNomComplet) {
+                results = repository.findByTypeClientAndNomCompletAndIdentifiantPrincipal(typeClient.name(), nomComplet, identifiant, pageable);
+            } else if (hasNomComplet) {
+                results = repository.findByTypeClientAndNomComplet(typeClient.name(), nomComplet, pageable);
+            } else {
+                results = repository.findByTypeClientAndIdentifiantPrincipal(typeClient.name(), identifiant, pageable);
+            }
         } else if (typeClient == TypeClient.PM) {
             if (typeIdentifiantPM == null) {
                 throw new LcnBusinessException("Le type d'identifiant PM (RC ou IF) est obligatoire pour les Personnes Morales (PM)");
@@ -51,19 +64,26 @@ public class LcnSynthService {
             }
             
             if (typeIdentifiantPM == TypeIdentifiantPM.RC) {
-                results = repository.findByTypeClientAndRc(typeClient.name(), identifiant);
+                results = repository.findByTypeClientAndRc(typeClient.name(), identifiant, pageable);
             } else {
-                results = repository.findByTypeClientAndIdentifiantFiscal(typeClient.name(), identifiant);
+                results = repository.findByTypeClientAndIdentifiantFiscal(typeClient.name(), identifiant, pageable);
             }
         } else {
             throw new LcnBusinessException("Type de client non supporté");
         }
         
-        return results.stream().map(mapper::toDTO).collect(Collectors.toList());
+        return results.map(mapper::toDTO);
     }
 
     @Transactional
     public LcnSynthDTO creerIncidentManuel(CreateLcnSynthRequest request) {
+        if (request.getNom() != null) request.setNom(request.getNom().trim().toUpperCase());
+        if (request.getPrenom() != null) request.setPrenom(request.getPrenom().trim().toUpperCase());
+        if (request.getRaisonSociale() != null) request.setRaisonSociale(request.getRaisonSociale().trim().toUpperCase());
+        if (request.getIdentifiantPrincipal() != null) request.setIdentifiantPrincipal(request.getIdentifiantPrincipal().trim().toUpperCase());
+        if (request.getRc() != null) request.setRc(request.getRc().trim().toUpperCase());
+        if (request.getIdentifiantFiscal() != null) request.setIdentifiantFiscal(request.getIdentifiantFiscal().trim().toUpperCase());
+
         if (request.getTypeClient() == TypeClient.PP) {
             if (request.getNom() == null || request.getPrenom() == null) {
                 throw new LcnBusinessException("Nom et prénom sont obligatoires pour un client PP");
