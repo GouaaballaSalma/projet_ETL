@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cfg-green: #00583A;
+  --color-cfg-gold: #C59A45;
+  --color-cfg-light: #F4F5F7;
+  --color-cfg-dark: #1A202C;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
