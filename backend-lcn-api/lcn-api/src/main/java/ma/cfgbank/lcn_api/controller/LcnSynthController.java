@@ -13,6 +13,7 @@ import ma.cfgbank.lcn_api.model.TypeIdentifiantPP;
 import ma.cfgbank.lcn_api.service.LcnSynthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ public class LcnSynthController {
             @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
     @GetMapping("/recherche")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_BUSINESS', 'ROLE_READ_ONLY', 'ROLE_API_CLIENT')")
     public ResponseEntity<Page<LcnSynthDTO>> rechercherIncidents(
             @RequestParam TypeClient typeClient,
             @RequestParam(required = false) String identifiant,
@@ -65,8 +67,27 @@ public class LcnSynthController {
             @ApiResponse(responseCode = "500", description = "Erreur interne du serveur")
     })
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_BUSINESS')")
     public ResponseEntity<LcnSynthDTO> creerIncidentManuel(@Valid @RequestBody CreateLcnSynthRequest request) {
         LcnSynthDTO created = service.creerIncidentManuel(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @Operation(summary = "Modifier un incident LCN manuellement", description = "Modifie un incident existant.")
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or (hasAuthority('ROLE_BUSINESS') and @securityService.canManageLcn(authentication, #refImpaye))")
+    public ResponseEntity<LcnSynthDTO> modifierIncidentManuel(
+            @PathVariable("id") String refImpaye, 
+            @Valid @RequestBody CreateLcnSynthRequest request) {
+        LcnSynthDTO updated = service.modifierIncidentManuel(refImpaye, request);
+        return ResponseEntity.ok(updated);
+    }
+
+    @Operation(summary = "Supprimer un incident LCN manuellement", description = "Supprime un incident existant.")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or (hasAuthority('ROLE_BUSINESS') and @securityService.canManageLcn(authentication, #refImpaye))")
+    public ResponseEntity<Void> supprimerIncidentManuel(@PathVariable("id") String refImpaye) {
+        service.supprimerIncidentManuel(refImpaye);
+        return ResponseEntity.noContent().build();
     }
 }

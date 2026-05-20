@@ -5,6 +5,8 @@
   --color-cfg-gold: #C59A45;
   --color-cfg-light: #F4F5F7;
   --color-cfg-dark: #1A202C;
+  --color-primary: #e7332a;
+  --color-primary-hover: #c8261e;
 }
 
 body {

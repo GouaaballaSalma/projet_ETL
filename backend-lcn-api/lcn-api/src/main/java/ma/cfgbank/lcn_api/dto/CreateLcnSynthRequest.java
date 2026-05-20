@@ -81,4 +81,7 @@ public class CreateLcnSynthRequest {
     @NotBlank(message = "Le RIB est obligatoire")
     @Size(max = 24, message = "Le RIB ne peut excéder 24 caractères")
     private String rib;
+
+    @Size(max = 20, message = "Le statut ne peut excéder 20 caractères")
+    private String statut;
 }

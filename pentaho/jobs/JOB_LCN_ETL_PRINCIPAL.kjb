@@ -680,7 +680,7 @@
       <description/>
       <type>WRITE_TO_LOG</type>
       <attributes/>
-      <logmessage>SUCCES : Chargement complet du fichier ${NOM_FICHIER} - Lot=${LOT_VAL} - Date=${DATE_ARRETE_VAL}</logmessage>
+      <logmessage>SUCCES : Chargement complet du fichier ${FICHIER_ENTREE} - Lot=${LOT_VAL} - Date=${DATE_ARRETE_VAL}</logmessage>
       <loglevel>Basic</loglevel>
       <logsubject/>
       <parallel>N</parallel>
@@ -695,7 +695,7 @@
       <description/>
       <type>WRITE_TO_LOG</type>
       <attributes/>
-      <logmessage>ERREUR : Echec lors du chargement du fichier ${NOM_FICHIER}. Consultez les logs Pentaho.</logmessage>
+      <logmessage>ERREUR : Echec lors du chargement du fichier ${FICHIER_ENTREE}. Consultez les logs Pentaho.</logmessage>
       <loglevel>Basic</loglevel>
       <logsubject/>
       <parallel>N</parallel>

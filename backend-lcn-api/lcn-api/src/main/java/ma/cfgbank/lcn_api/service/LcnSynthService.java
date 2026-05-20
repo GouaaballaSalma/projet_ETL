@@ -11,6 +11,7 @@ import ma.cfgbank.lcn_api.model.TypeIdentifiantPP;
 import ma.cfgbank.lcn_api.repository.LcnSynthRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -126,6 +127,7 @@ public class LcnSynthService {
                 .statut("Impayé")
                 .dateStatut(LocalDate.now())
                 .dateArrete(LocalDate.now())
+                .createdBy(SecurityContextHolder.getContext().getAuthentication().getName())
                 .build();
                 
         LcnSynth saved = repository.save(entity);
@@ -153,5 +155,37 @@ public class LcnSynthService {
         } while (exists);
         
         return generatedRef;
+    }
+
+    @Transactional
+    public LcnSynthDTO modifierIncidentManuel(String refImpaye, CreateLcnSynthRequest request) {
+        LcnSynth entity = repository.findFirstByIdRefImpaye(refImpaye)
+                .orElseThrow(() -> new LcnBusinessException("Incident LCN introuvable"));
+                
+        // Mise à jour de tous les champs modifiables (Dirty Checking)
+        entity.setMontant(request.getMontant());
+        entity.setDevise(request.getDevise());
+        entity.setDateEmission(request.getDateEmission());
+        entity.setDateEcheance(request.getDateEcheance());
+        entity.setDateConstat(request.getDateConstat());
+        entity.setInsuffisance(request.getInsuffisance());
+        entity.setRib(request.getRib());
+        entity.setCodeBanque(request.getCodeBanque());
+        entity.setNumLcn(request.getNumLcn());
+        
+        if (request.getStatut() != null && !request.getStatut().trim().isEmpty()) {
+            entity.setStatut(request.getStatut().trim());
+            entity.setDateStatut(LocalDate.now());
+        }
+        
+        // Pas de repository.save(entity) pour éviter l'isNew() bug !
+        return mapper.toDTO(entity);
+    }
+
+    @Transactional
+    public void supprimerIncidentManuel(String refImpaye) {
+        LcnSynth entity = repository.findFirstByIdRefImpaye(refImpaye)
+                .orElseThrow(() -> new LcnBusinessException("Incident LCN introuvable"));
+        repository.delete(entity);
     }
 }

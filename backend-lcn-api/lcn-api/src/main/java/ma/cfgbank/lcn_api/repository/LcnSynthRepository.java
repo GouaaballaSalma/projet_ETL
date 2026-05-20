@@ -17,6 +17,9 @@ public interface LcnSynthRepository extends JpaRepository<LcnSynth, LcnSynthId> 
     
     @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM LcnSynth l WHERE l.id.refImpaye = :refImpaye")
     boolean existsByRefImpaye(@Param("refImpaye") String refImpaye);
+    
+    java.util.Optional<LcnSynth> findFirstByIdRefImpaye(String refImpaye);
+    
     Page<LcnSynth> findByTypeClientAndIdentifiantPrincipal(String typeClient, String identifiantPrincipal, Pageable pageable);
     
     @Query("SELECT l FROM LcnSynth l WHERE l.typeClient = :typeClient AND (" +

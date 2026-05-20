@@ -12,6 +12,10 @@ export default {
           gold: '#C59A45', // CFG gold approx
           light: '#F4F5F7',
           dark: '#1A202C'
+        },
+        primary: {
+          DEFAULT: '#e7332a',
+          hover: '#c8261e'
         }
       }
     },

@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../api/axiosConfig';
 import type { Page, LcnSynthDTO, TypeClient, TypeIdentifiantPP, TypeIdentifiantPM } from '../types/LcnSynth';
 
 export interface SearchLcnParams {
@@ -18,14 +18,23 @@ export const lcnService = {
       Object.entries(params).filter(([_, v]) => v !== undefined && v !== '')
     );
     
-    const response = await api.get<Page<LcnSynthDTO>>('/lcn/recherche', {
+    const response = await api.get<Page<LcnSynthDTO>>('/api/lcn/recherche', {
       params: cleanedParams,
     });
     return response.data;
   },
 
   creerIncidentManuel: async (data: any): Promise<LcnSynthDTO> => {
-    const response = await api.post<LcnSynthDTO>('/lcn', data);
+    const response = await api.post<LcnSynthDTO>('/api/lcn', data);
+    return response.data;
+  },
+
+  deleteLcn: async (refImpaye: string): Promise<void> => {
+    await api.delete(`/api/lcn/${refImpaye}`);
+  },
+
+  updateLcn: async (refImpaye: string, data: any): Promise<LcnSynthDTO> => {
+    const response = await api.put<LcnSynthDTO>(`/api/lcn/${refImpaye}`, data);
     return response.data;
   },
 };

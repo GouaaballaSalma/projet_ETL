@@ -1,7 +1,7 @@
 import React, { useState, type FormEvent } from 'react';
 import { Save, XCircle, CheckCircle, AlertCircle, Loader2, User, Building, FileText, CreditCard } from 'lucide-react';
 import { lcnService } from '../services/lcnService';
-import { TypeClient, TypeIdentifiantPP, TypeIdentifiantPM } from '../types/LcnSynth';
+import { TypeClient, TypeIdentifiantPM } from '../types/LcnSynth';
 import type { CreateLcnSynthRequest } from '../types/LcnSynth';
 
 const CreateLcnPage: React.FC = () => {
@@ -93,15 +93,15 @@ const CreateLcnPage: React.FC = () => {
       <div className="bg-white shadow-sm border border-gray-200 mb-6">
         <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50/50">
           <h1 className="text-xl font-bold text-cfg-dark flex items-center gap-2">
-            <FileText className="text-cfg-green" /> 
+            <FileText className="text-primary" /> 
             Saisie Manuelle d'Incident LCN
           </h1>
         </div>
       </div>
 
       {success && (
-        <div className="bg-green-50 border-l-4 border-cfg-green p-4 mb-6 shadow-sm flex items-start">
-          <CheckCircle className="h-5 w-5 text-cfg-green mt-0.5" />
+        <div className="bg-green-50 border-l-4 border-primary p-4 mb-6 shadow-sm flex items-start">
+          <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
           <div className="ml-3">
             <h3 className="text-sm font-bold text-green-800">Succès</h3>
             <p className="text-sm text-green-700 mt-1">L'incident LCN a été créé et enregistré avec succès dans la base de données.</p>
@@ -130,7 +130,7 @@ const CreateLcnPage: React.FC = () => {
         
         {/* BLOC 1: IDENTITE DU DEBITEUR */}
         <div className="bg-white shadow-sm border border-gray-300 rounded-sm overflow-hidden">
-          <div className="bg-gray-100 border-b border-t-2 border-t-cfg-green px-4 py-2.5 flex items-center gap-2">
+          <div className="bg-gray-100 border-b border-t-2 border-t-primary px-4 py-2.5 flex items-center gap-2">
             {formData.typeClient === TypeClient.PP ? (
               <User className="w-4 h-4 text-gray-500" />
             ) : (
@@ -162,7 +162,7 @@ const CreateLcnPage: React.FC = () => {
                 type="text" 
                 name="refClient"
                 maxLength={12}
-                className="w-full border border-gray-300 bg-white p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                className="w-full border border-gray-300 bg-white p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                 value={formData.refClient || ''}
                 onChange={handleChange}
                 required
@@ -177,7 +177,7 @@ const CreateLcnPage: React.FC = () => {
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Nom</label>
                   <input 
                     type="text" name="nom" maxLength={50}
-                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                     value={formData.nom || ''} onChange={handleChange}
                   />
                 </div>
@@ -185,7 +185,7 @@ const CreateLcnPage: React.FC = () => {
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Prénom</label>
                   <input 
                     type="text" name="prenom" maxLength={50}
-                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                     value={formData.prenom || ''} onChange={handleChange}
                   />
                 </div>
@@ -195,7 +195,7 @@ const CreateLcnPage: React.FC = () => {
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Type Identifiant</label>
                   <select 
                     name="typeIdentifiant"
-                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                     value={formData.typeIdentifiant || ''} onChange={handleChange}
                   >
                     <option value="">Sélectionner</option>
@@ -208,7 +208,7 @@ const CreateLcnPage: React.FC = () => {
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Valeur Identifiant</label>
                   <input 
                     type="text" name="identifiantPrincipal" maxLength={20}
-                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                     value={formData.identifiantPrincipal || ''} onChange={handleChange}
                   />
                 </div>
@@ -219,7 +219,7 @@ const CreateLcnPage: React.FC = () => {
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Raison Sociale</label>
                   <input 
                     type="text" name="raisonSociale" maxLength={120}
-                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                     value={formData.raisonSociale || ''} onChange={handleChange}
                   />
                 </div>
@@ -229,7 +229,7 @@ const CreateLcnPage: React.FC = () => {
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Type Identifiant PM</label>
                   <select 
                     name="typeIdentifiantPM"
-                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                     value={formData.typeIdentifiantPM || ''} onChange={handleChange}
                   >
                     <option value="">Sélectionner</option>
@@ -242,7 +242,7 @@ const CreateLcnPage: React.FC = () => {
                    <label className="block text-xs font-semibold text-gray-700 mb-1">Valeur (RC ou IF)</label>
                    <input 
                     type="text" name={formData.typeIdentifiantPM === TypeIdentifiantPM.RC ? 'rc' : 'identifiantFiscal'} maxLength={20}
-                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                    className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                     value={formData.typeIdentifiantPM === TypeIdentifiantPM.RC ? (formData.rc || '') : (formData.identifiantFiscal || '')} 
                     onChange={handleChange}
                     placeholder={formData.typeIdentifiantPM ? `Entrez le ${formData.typeIdentifiantPM}` : ''}
@@ -255,7 +255,7 @@ const CreateLcnPage: React.FC = () => {
 
         {/* BLOC 2: REFERENCES BANCAIRES & LCN */}
         <div className="bg-white shadow-sm border border-gray-300 rounded-sm overflow-hidden">
-           <div className="bg-gray-100 border-b border-t-2 border-t-cfg-green px-4 py-2.5 flex items-center gap-2">
+           <div className="bg-gray-100 border-b border-t-2 border-t-primary px-4 py-2.5 flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-gray-500" />
             <h2 className="text-sm font-bold text-cfg-dark uppercase tracking-wide">
               2. Références Bancaires & LCN
@@ -266,7 +266,7 @@ const CreateLcnPage: React.FC = () => {
               <label className="block text-xs font-semibold text-gray-700 mb-1">RIB <span className="text-red-500">*</span></label>
               <input 
                 type="text" name="rib" maxLength={24} minLength={24}
-                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm font-mono tracking-wider"
+                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm font-mono tracking-wider"
                 value={formData.rib || ''} onChange={handleChange}
                 placeholder="000000000000000000000000"
                 required
@@ -276,7 +276,7 @@ const CreateLcnPage: React.FC = () => {
               <label className="block text-xs font-semibold text-gray-700 mb-1">Code Banque <span className="text-red-500">*</span></label>
               <input 
                 type="text" name="codeBanque" maxLength={3}
-                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm font-mono"
+                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm font-mono"
                 value={formData.codeBanque || ''} onChange={handleChange}
                 required
               />
@@ -285,7 +285,7 @@ const CreateLcnPage: React.FC = () => {
               <label className="block text-xs font-semibold text-gray-700 mb-1">Numéro LCN <span className="text-red-500">*</span></label>
               <input 
                 type="text" name="numLcn" maxLength={10}
-                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm font-mono font-bold"
+                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm font-mono font-bold"
                 value={formData.numLcn || ''} onChange={handleChange}
                 required
               />
@@ -295,7 +295,7 @@ const CreateLcnPage: React.FC = () => {
 
         {/* BLOC 3: DETAILS FINANCIERS & CONSTAT */}
         <div className="bg-white shadow-sm border border-gray-300 rounded-sm overflow-hidden">
-           <div className="bg-gray-100 border-b border-t-2 border-t-cfg-green px-4 py-2.5 flex items-center gap-2">
+           <div className="bg-gray-100 border-b border-t-2 border-t-primary px-4 py-2.5 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-gray-500" />
             <h2 className="text-sm font-bold text-cfg-dark uppercase tracking-wide">
               3. Détails Financiers & Constat
@@ -307,7 +307,7 @@ const CreateLcnPage: React.FC = () => {
               <div className="relative">
                 <input 
                   type="number" name="montant" step="0.01" min="0.01"
-                  className="w-full border border-gray-300 p-2 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm text-right font-mono"
+                  className="w-full border border-gray-300 p-2 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm text-right font-mono"
                   value={formData.montant || ''} onChange={handleChange} required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -330,7 +330,7 @@ const CreateLcnPage: React.FC = () => {
               <div className="relative">
                 <input 
                   type="number" name="insuffisance" step="0.01" min="0.01"
-                  className="w-full border border-gray-300 p-2 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm text-right font-mono text-red-600 font-semibold"
+                  className="w-full border border-gray-300 p-2 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm text-right font-mono text-red-600 font-semibold"
                   value={formData.insuffisance !== undefined ? formData.insuffisance : ''} onChange={handleChange} required
                 />
                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -343,7 +343,7 @@ const CreateLcnPage: React.FC = () => {
               <label className="block text-xs font-semibold text-gray-700 mb-1">Date d'émission <span className="text-red-500">*</span></label>
               <input 
                 type="date" name="dateEmission"
-                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                 value={formData.dateEmission || ''} onChange={handleChange} required
               />
             </div>
@@ -352,7 +352,7 @@ const CreateLcnPage: React.FC = () => {
               <label className="block text-xs font-semibold text-gray-700 mb-1">Date d'échéance <span className="text-red-500">*</span></label>
               <input 
                 type="date" name="dateEcheance"
-                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm"
+                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm"
                 value={formData.dateEcheance || ''} onChange={handleChange} required
               />
             </div>
@@ -361,7 +361,7 @@ const CreateLcnPage: React.FC = () => {
               <label className="block text-xs font-semibold text-gray-700 mb-1">Date de constat <span className="text-red-500">*</span></label>
               <input 
                 type="date" name="dateConstat"
-                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green shadow-sm bg-orange-50/50"
+                className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary shadow-sm bg-orange-50/50"
                 value={formData.dateConstat || ''} onChange={handleChange} required
               />
             </div>
@@ -380,7 +380,7 @@ const CreateLcnPage: React.FC = () => {
           <button 
             type="submit" 
             disabled={isLoading}
-            className="flex items-center px-6 py-2.5 border border-transparent bg-cfg-green text-white text-sm font-bold hover:bg-[#00472E] transition-colors shadow-sm disabled:opacity-70 focus:ring-2 focus:ring-offset-2 focus:ring-cfg-green"
+            className="flex items-center px-6 py-2.5 border border-transparent bg-primary text-white text-sm font-bold hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-70 focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} 
             Enregistrer l'incident

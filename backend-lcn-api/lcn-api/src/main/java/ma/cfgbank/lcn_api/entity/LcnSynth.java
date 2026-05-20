@@ -88,4 +88,7 @@ public class LcnSynth {
 
     @Column(name = "DATE_CHARGE", insertable = false, updatable = false)
     private LocalDate dateCharge;
+
+    @Column(name = "CREATED_BY", length = 100)
+    private String createdBy;
 }

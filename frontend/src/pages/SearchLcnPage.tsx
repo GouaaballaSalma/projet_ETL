@@ -1,6 +1,10 @@
 import React, { useState, type FormEvent } from 'react';
-import { Search, Eraser, ChevronLeft, ChevronRight, AlertCircle, Loader2 } from 'lucide-react';
+import { Search, Eraser, ChevronLeft, ChevronRight, AlertCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
 import { lcnService, type SearchLcnParams } from '../services/lcnService';
+import { authService } from '../services/authService';
+import EditLcnModal from '../components/EditLcnModal';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import ErrorModal from '../components/ErrorModal';
 import { TypeClient, TypeIdentifiantPP, TypeIdentifiantPM } from '../types/LcnSynth';
 import type { LcnSynthDTO, Page } from '../types/LcnSynth';
 
@@ -16,6 +20,68 @@ const SearchLcnPage: React.FC = () => {
   
   const [currentPage, setCurrentPage] = useState<number>(0);
   const pageSize = 10;
+
+  const [editingLcn, setEditingLcn] = useState<LcnSynthDTO | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [lcnToDelete, setLcnToDelete] = useState<string | null>(null);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const hasActionRights = authService.hasAnyRole(['ROLE_ADMIN', 'ROLE_BUSINESS']);
+
+  const handleEdit = (lcn: LcnSynthDTO) => {
+    setEditingLcn(lcn);
+  };
+
+  const handleSaveEdit = async (refImpaye: string, formData: any) => {
+    try {
+      const updatedLcn = await lcnService.updateLcn(refImpaye, formData);
+      if (data) {
+        setData({
+          ...data,
+          content: data.content.map(item => item.refImpaye === refImpaye ? updatedLcn : item)
+        });
+      }
+      setEditingLcn(null);
+      // Removed alert as per standard modal UX (closes implicitly on success), but if wanted:
+      // alert("La saisie manuelle a été modifiée avec succès.");
+    } catch (err: any) {
+      if (err.response?.status === 403) {
+        setErrorMessage("Accès refusé : Vous n'êtes pas autorisé à modifier cet enregistrement.");
+      } else {
+        setErrorMessage("Une erreur est survenue lors de la modification.");
+      }
+      setIsErrorModalOpen(true);
+    }
+  };
+
+  const handleDeleteClick = (refImpaye: string) => {
+    setLcnToDelete(refImpaye);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!lcnToDelete) return;
+    try {
+      await lcnService.deleteLcn(lcnToDelete);
+      if (data) {
+        setData({
+          ...data,
+          content: data.content.filter(item => item.refImpaye !== lcnToDelete),
+          totalElements: data.totalElements - 1
+        });
+      }
+      setIsDeleteModalOpen(false);
+      setLcnToDelete(null);
+    } catch (err: any) {
+      if (err.response?.status === 403) {
+        setErrorMessage("Accès refusé : Vous n'êtes pas autorisé à modifier cet enregistrement.");
+      } else {
+        setErrorMessage("Une erreur est survenue lors de la suppression.");
+      }
+      setIsErrorModalOpen(true);
+    }
+  };
 
   const handleSearch = async (page: number = 0) => {
     setIsLoading(true);
@@ -72,17 +138,15 @@ const SearchLcnPage: React.FC = () => {
     <div className="flex flex-col h-full space-y-4 p-4 lg:p-6 bg-cfg-light min-h-screen">
       <div className="flex justify-between items-center bg-white p-4 shadow-sm border border-gray-200">
         <h1 className="text-xl font-bold text-cfg-dark flex items-center gap-2">
-          <Search className="text-cfg-green" /> 
+          <Search className="text-primary" /> 
           Recherche Synthétique LCN
         </h1>
-        <div className="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
-          Plateforme LCN
-        </div>
+
       </div>
 
       {/* FILTRES */}
       <div className="bg-white shadow-sm border border-gray-300">
-        <div className="bg-cfg-green text-white px-4 py-2 text-sm font-semibold flex items-center">
+        <div className="bg-primary text-white px-4 py-2 text-sm font-semibold flex items-center">
           Option
         </div>
         <form onSubmit={onSubmit} className="p-4">
@@ -107,7 +171,7 @@ const SearchLcnPage: React.FC = () => {
               <label className="w-1/3 text-sm font-semibold text-gray-700 text-right pr-4">Nom complet / Raison Sociale</label>
               <input 
                 type="text" 
-                className="w-2/3 border border-gray-300 p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green"
+                className="w-2/3 border border-gray-300 p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                 value={nomComplet}
                 onChange={(e) => setNomComplet(e.target.value)}
               />
@@ -116,7 +180,7 @@ const SearchLcnPage: React.FC = () => {
             <div className="flex items-center">
               <label className="w-1/3 text-sm font-semibold text-gray-700 text-right pr-4">Type identifiant 1</label>
               <select 
-                className="w-2/3 border border-gray-300 p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green"
+                className="w-2/3 border border-gray-300 p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                 value={typeIdentifiant}
                 onChange={(e) => setTypeIdentifiant(e.target.value)}
               >
@@ -131,7 +195,7 @@ const SearchLcnPage: React.FC = () => {
               <label className="w-1/3 text-sm font-semibold text-gray-700 text-right pr-4">Valeur identifiant 1</label>
               <input 
                 type="text" 
-                className="w-2/3 border border-gray-300 p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-cfg-green focus:border-cfg-green"
+                className="w-2/3 border border-gray-300 p-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                 value={valeurIdentifiant}
                 onChange={(e) => setValeurIdentifiant(e.target.value)}
               />
@@ -150,7 +214,7 @@ const SearchLcnPage: React.FC = () => {
             <button 
               type="submit" 
               disabled={isLoading}
-              className="flex items-center px-4 py-1.5 border border-transparent bg-cfg-green text-white text-sm font-medium hover:bg-[#00472E] transition-colors shadow-sm disabled:opacity-70"
+              className="flex items-center px-4 py-1.5 border border-transparent bg-primary text-white text-sm font-medium hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-70"
             >
               {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />} 
               Rechercher
@@ -172,7 +236,7 @@ const SearchLcnPage: React.FC = () => {
 
       {/* RÉSULTATS */}
       <div className="bg-white shadow-sm border border-gray-300 flex-1 flex flex-col min-h-0">
-        <div className="bg-cfg-green text-white px-4 py-2 text-sm font-semibold flex items-center justify-between">
+        <div className="bg-primary text-white px-4 py-2 text-sm font-semibold flex items-center justify-between">
           <span>File d'attente / Résultats</span>
           {data && (
             <span className="text-xs font-normal">
@@ -191,18 +255,19 @@ const SearchLcnPage: React.FC = () => {
                 <th className="px-4 py-2.5 font-semibold border-r border-gray-200 text-right">Montant</th>
                 <th className="px-4 py-2.5 font-semibold border-r border-gray-200">Statut</th>
                 <th className="px-4 py-2.5 font-semibold">Date Constat</th>
+                {hasActionRights && <th className="px-4 py-2.5 font-semibold text-center border-l border-gray-200">Actions</th>}
               </tr>
             </thead>
             <tbody>
               {!data ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500 italic">
+                  <td colSpan={hasActionRights ? 7 : 6} className="px-4 py-8 text-center text-gray-500 italic">
                     Aucune recherche effectuée.
                   </td>
                 </tr>
               ) : data.content.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500 italic">
+                  <td colSpan={hasActionRights ? 7 : 6} className="px-4 py-8 text-center text-gray-500 italic">
                     Aucun résultat trouvé.
                   </td>
                 </tr>
@@ -227,6 +292,30 @@ const SearchLcnPage: React.FC = () => {
                     <td className="px-4 py-2 text-gray-500">
                       {row.dateConstat ? new Date(row.dateConstat).toLocaleDateString('fr-FR') : '-'}
                     </td>
+                    {hasActionRights && (
+                      <td className="px-4 py-2 text-center border-l border-gray-200">
+                        {row.refImpaye?.startsWith('MAN') && (
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(row)}
+                              className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              title="Modifier"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteClick(row.refImpaye!)}
+                              className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -259,6 +348,24 @@ const SearchLcnPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <EditLcnModal 
+        isOpen={!!editingLcn} 
+        lcn={editingLcn} 
+        onClose={() => setEditingLcn(null)} 
+        onSave={handleSaveEdit} 
+      />
+      <DeleteConfirmationModal 
+        isOpen={isDeleteModalOpen} 
+        onClose={() => setIsDeleteModalOpen(false)} 
+        onConfirm={confirmDelete} 
+        refImpaye={lcnToDelete || ''} 
+      />
+      <ErrorModal 
+        isOpen={isErrorModalOpen} 
+        onClose={() => setIsErrorModalOpen(false)} 
+        message={errorMessage} 
+      />
     </div>
   );
 };
