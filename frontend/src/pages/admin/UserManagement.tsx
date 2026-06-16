@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
-import { Users } from 'lucide-react';
+import { Users, Trash2 } from 'lucide-react';
+import DeleteUserModal from '../../components/DeleteUserModal';
 
 interface UtilisateurResponse {
   id: number;
   email: string;
   nomComplet: string;
   role: string;
+  actif: boolean;
 }
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<UtilisateurResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UtilisateurResponse | null>(null);
 
   // Form state
   const [email, setEmail] = useState('');
@@ -59,6 +64,33 @@ const UserManagement: React.FC = () => {
       setError('Erreur lors de la création de l\'utilisateur.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleStatus = async (id: number) => {
+    try {
+      await api.patch(`/api/admin/users/${id}/toggle-status`);
+      fetchUsers();
+    } catch (err) {
+      setError('Erreur lors de la modification du statut.');
+    }
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    try {
+      await api.delete(`/api/admin/users/${userToDelete.id}`);
+      setIsDeleteModalOpen(false);
+      setUserToDelete(null);
+      fetchUsers();
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Erreur lors de la suppression de l'utilisateur.");
+      }
+      setIsDeleteModalOpen(false);
+      setUserToDelete(null);
     }
   };
 
@@ -150,18 +182,20 @@ const UserManagement: React.FC = () => {
                   <th className="px-6 py-4">Nom Complet</th>
                   <th className="px-6 py-4">Email</th>
                   <th className="px-6 py-4">Rôle</th>
+                  <th className="px-6 py-4 text-center">Statut</th>
+                  <th className="px-6 py-4 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                       Chargement des utilisateurs...
                     </td>
                   </tr>
                 ) : users.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                       Aucun utilisateur trouvé.
                     </td>
                   </tr>
@@ -183,6 +217,37 @@ const UserManagement: React.FC = () => {
                           {user.role}
                         </span>
                       </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          user.actif !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {user.actif !== false ? 'Actif' : 'Inactif'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex justify-center space-x-2">
+                          <button
+                            onClick={() => handleToggleStatus(user.id)}
+                            className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                              user.actif !== false
+                                ? 'bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200' 
+                                : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200'
+                            }`}
+                          >
+                            {user.actif !== false ? 'Désactiver' : 'Activer'}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setUserToDelete(user);
+                              setIsDeleteModalOpen(true);
+                            }}
+                            className="p-1.5 text-red-600 bg-transparent rounded-full hover:bg-red-50 hover:text-red-800 transition-colors"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -192,6 +257,12 @@ const UserManagement: React.FC = () => {
         </div>
 
       </div>
+      <DeleteUserModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDeleteUser}
+        userName={userToDelete?.nomComplet || ''}
+      />
     </div>
   );
 };

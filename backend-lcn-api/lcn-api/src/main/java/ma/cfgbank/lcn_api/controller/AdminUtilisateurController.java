@@ -38,6 +38,7 @@ public class AdminUtilisateurController {
                         .email(user.getEmail())
                         .nomComplet(user.getNomComplet())
                         .role(user.getRole())
+                        .actif(user.getActif())
                         .build())
                 .collect(Collectors.toList());
         return ResponseEntity.ok(users);
@@ -64,6 +65,7 @@ public class AdminUtilisateurController {
                     .email(savedUser.getEmail())
                     .nomComplet(savedUser.getNomComplet())
                     .role(savedUser.getRole())
+                    .actif(savedUser.getActif())
                     .build();
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -84,5 +86,11 @@ public class AdminUtilisateurController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         utilisateurService.deleteUtilisateur(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/toggle-status")
+    public ResponseEntity<UtilisateurResponse> toggleUserStatus(@PathVariable Long id) {
+        UtilisateurResponse updatedUser = utilisateurService.toggleStatus(id);
+        return ResponseEntity.ok(updatedUser);
     }
 }

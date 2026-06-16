@@ -39,4 +39,13 @@ public interface LcnSynthRepository extends JpaRepository<LcnSynth, LcnSynthId> 
     Page<LcnSynth> findByTypeClientAndRc(String typeClient, String rc, Pageable pageable);
     
     Page<LcnSynth> findByTypeClientAndIdentifiantFiscal(String typeClient, String identifiantFiscal, Pageable pageable);
+
+    @Query("SELECT SUM(l.montant) FROM LcnSynth l")
+    java.math.BigDecimal sumMontantTotal();
+
+    @Query("SELECT l.typeClient, COUNT(l) FROM LcnSynth l GROUP BY l.typeClient")
+    List<Object[]> countByTypeClient();
+
+    @Query("SELECT new ma.cfgbank.lcn_api.dto.RawClientStatsDTO(l.identifiantPrincipal, l.raisonSociale, l.nom, l.prenom, l.typeClient, COUNT(l), SUM(l.montant)) FROM LcnSynth l GROUP BY l.identifiantPrincipal, l.raisonSociale, l.nom, l.prenom, l.typeClient")
+    List<ma.cfgbank.lcn_api.dto.RawClientStatsDTO> findRawClientStats();
 }

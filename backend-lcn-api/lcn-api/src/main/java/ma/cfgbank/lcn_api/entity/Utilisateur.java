@@ -45,6 +45,10 @@ public class Utilisateur implements UserDetails {
     @Column(nullable = false)
     private RoleEnum role;
 
+    @Column(name = "actif")
+    @Builder.Default
+    private Boolean actif = true;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
@@ -77,6 +81,6 @@ public class Utilisateur implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return Boolean.TRUE.equals(actif);
     }
 }

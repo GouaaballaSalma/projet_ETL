@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 import UserManagement from './pages/admin/UserManagement';
+import Dashboard from './pages/admin/Dashboard';
 import { authService } from './services/authService';
 import Logo from './components/Logo';
 
@@ -50,18 +51,32 @@ const ProtectedLayout = () => {
                   </NavLink>
                 )}
                 {authService.hasAnyRole(['ROLE_ADMIN']) && (
-                  <NavLink
-                    to="/admin/users"
-                    className={({ isActive }) =>
-                      `px-4 py-3 rounded-md text-sm font-semibold transition-colors ${
-                        isActive
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
-                      }`
-                    }
-                  >
-                    Panneau Admin
-                  </NavLink>
+                  <>
+                    <NavLink
+                      to="/admin/users"
+                      className={({ isActive }) =>
+                        `px-4 py-3 rounded-md text-sm font-semibold transition-colors ${
+                          isActive
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
+                        }`
+                      }
+                    >
+                      Utilisateurs
+                    </NavLink>
+                    <NavLink
+                      to="/admin/dashboard"
+                      className={({ isActive }) =>
+                        `px-4 py-3 rounded-md text-sm font-semibold transition-colors ${
+                          isActive
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent'
+                        }`
+                      }
+                    >
+                      Tableau de bord
+                    </NavLink>
+                  </>
                 )}
               </div>
             </div>
@@ -96,6 +111,11 @@ const ProtectedLayout = () => {
           <Route path="/admin/users" element={
             <RoleProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <UserManagement />
+            </RoleProtectedRoute>
+          } />
+          <Route path="/admin/dashboard" element={
+            <RoleProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <Dashboard />
             </RoleProtectedRoute>
           } />
         </Routes>

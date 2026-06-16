@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +40,7 @@ public class UtilisateurService {
                     .email(savedUser.getEmail())
                     .nomComplet(savedUser.getNomComplet())
                     .role(savedUser.getRole())
+                    .actif(savedUser.getActif())
                     .build();
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Erreur d'intégrité des données : vérifiez les valeurs envoyées (ex: rôle invalide pour la base de données).", e);
@@ -49,6 +51,27 @@ public class UtilisateurService {
         if (!utilisateurRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable");
         }
-        utilisateurRepository.deleteById(id);
+        try {
+            utilisateurRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Impossible de supprimer cet utilisateur car il est lié à des incidents LCN. Veuillez plutôt le désactiver.", e);
+        }
+    }
+
+    @Transactional
+    public UtilisateurResponse toggleStatus(Long id) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+        
+        utilisateur.setActif(!Boolean.TRUE.equals(utilisateur.getActif()));
+        Utilisateur savedUser = utilisateurRepository.save(utilisateur);
+        
+        return UtilisateurResponse.builder()
+                .id(savedUser.getId())
+                .email(savedUser.getEmail())
+                .nomComplet(savedUser.getNomComplet())
+                .role(savedUser.getRole())
+                .actif(savedUser.getActif())
+                .build();
     }
 }
