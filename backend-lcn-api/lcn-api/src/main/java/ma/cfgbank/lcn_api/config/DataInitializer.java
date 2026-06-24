@@ -7,8 +7,10 @@ import ma.cfgbank.lcn_api.repository.UtilisateurRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
@@ -26,7 +28,7 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
 
             utilisateurRepository.save(admin);
-            System.out.println(" Administrateur de test créé avec succès : admin@cfgbank.ma / admin123");
+            log.info(" Administrateur de test créé avec succès : admin@cfgbank.ma / admin123");
         }
     }
 }

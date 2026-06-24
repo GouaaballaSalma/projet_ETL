@@ -14,8 +14,10 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(LcnBusinessException.class)
@@ -33,7 +35,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        ex.printStackTrace();
+        log.error("Une erreur est survenue : ", ex);
         Map<String, String> errors = new HashMap<>();
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             errors.put(fieldError.getField(), fieldError.getDefaultMessage());
@@ -71,7 +73,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGenericException(Exception ex, HttpServletRequest request) {
-        ex.printStackTrace();
+        log.error("Une erreur est survenue : ", ex);
         
         // Si l'erreur cachée à l'intérieur est une erreur de sécurité :
         if (ex.getCause() instanceof AuthorizationDeniedException || ex.getCause() instanceof AccessDeniedException) {

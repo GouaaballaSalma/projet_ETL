@@ -10,7 +10,29 @@ interface EditLcnModalProps {
 }
 
 const EditLcnModal: React.FC<EditLcnModalProps> = ({ isOpen, lcn, onClose, onSave }) => {
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>({
+    montant: 0,
+    devise: 'MAD',
+    statut: 'IMPAYÉ',
+    dateEmission: '',
+    dateEcheance: '',
+    dateConstat: '',
+    insuffisance: 0,
+    rib: '',
+    refClient: '',
+    typeClient: 'PP',
+    nom: '',
+    prenom: '',
+    typeIdentifiant: '',
+    identifiantPrincipal: '',
+    dateNaissance: '',
+    raisonSociale: '',
+    typeIdentifiantPM: '',
+    rc: '',
+    identifiantFiscal: '',
+    codeBanque: '',
+    numLcn: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
